@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "deploy": "tsx src/deploy-commands.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.3"
+  }
+}
