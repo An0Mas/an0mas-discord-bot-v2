@@ -8,13 +8,13 @@ const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 
 if (!token || !clientId || !guildId) {
-  throw new Error("DISCORD_TOKEN / CLIENT_ID / GUILD_ID ‚ğ .env ‚Éİ’è‚µ‚Ä‚Ë");
+  throw new Error("DISCORD_TOKEN / CLIENT_ID / GUILD_ID ã‚’ .env ã«è¨­å®šã—ã¦ã­");
 }
 
 const commands = [{ name: "ping", description: "Replies with Pong!" }];
 
 const rest = new REST({ version: "10" }).setToken(token);
 
-console.log("ƒXƒ‰ƒbƒVƒ…ƒRƒ}ƒ“ƒh“o˜^’†...");
+console.log("ã‚¹ãƒ©ãƒƒã‚·ãƒ¥ã‚³ãƒãƒ³ãƒ‰ç™»éŒ²ä¸­...");
 await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
-console.log("“o˜^Š®—¹I");
+console.log("ç™»éŒ²å®Œäº†ï¼");
