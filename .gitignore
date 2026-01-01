@@ -42,5 +42,9 @@ data/
 *.sqlite
 *.sqlite3
 
+# ===== Agent notes (local work logs) =====
+docs/agent-notes/*
+!docs/agent-notes/_TEMPLATE.md
+
 # ===== Serena metadata =====
 .serena/
