@@ -1,11 +1,11 @@
 # an0mas-discord-bot-v2
 
-TypeScript + discord.js ‚Åì‚é Discord BotiƒXƒ‰ƒbƒVƒ…ƒRƒ}ƒ“ƒhj‚Å‚·B
+TypeScript + discord.js ã§ä½œã‚‹ Discord Botï¼ˆã‚¹ãƒ©ãƒƒã‚·ãƒ¥ã‚³ãƒãƒ³ãƒ‰ï¼‰ã§ã™ã€‚
 
-## •K—vŠÂ‹«
-- Node.jsi„§F22ˆÈãj
+## å¿…è¦ç’°å¢ƒ
+- Node.jsï¼ˆæ¨å¥¨ï¼š22ä»¥ä¸Šï¼‰
 - npm
 
-## ƒZƒbƒgƒAƒbƒv
+## ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—
 ```powershell
 npm i
