@@ -34,6 +34,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+.cursorindexingignore
+.specstory/
 
 # ===== Local data dir =====
 data/
@@ -48,3 +50,9 @@ docs/agent-notes/*
 
 # ===== Serena metadata =====
 .serena/
+
+# SpecStory project identity file
+/.project.json
+# SpecStory explanation file
+/.what-is-this.md
+
