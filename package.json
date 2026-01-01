@@ -2,7 +2,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "deploy": "tsx src/deploy-commands.ts"
+    "deploy": "tsx src/deploy-commands.ts",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck"
   },
   "devDependencies": {
     "@types/node": "^25.0.1",

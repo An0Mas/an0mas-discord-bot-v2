@@ -25,7 +25,8 @@
 - install: `npm i`
 - dev: `npm run dev`（Bot起動）
 - deploy: `npm run deploy`（スラッシュコマンド登録）
-- typecheck: `npx tsc --noEmit`（TypeScriptを触った時に推奨）
+- typecheck: `npm run typecheck`（TypeScriptの型チェック）
+- verify: `npm run verify`（確認まとめ：現状はtypecheckのみ）
 - test: （未設定なら省略可 / 追加したらここに追記）
 
 ---
@@ -57,6 +58,25 @@
 
 ---
 
+## Docs（SPEC/HELP/COMMAND/SCOPE/PLANS/DETAILS）— 更新ルール（重要）
+docs配下の文章は「仕様の正」として扱う。コンテキスト増加による誤り（幻覚/内容のすり替わり）を避けるため、以下を厳守する。
+
+### ルール
+- `docs/` 内の仕様書類（`SPEC.md` / `HELP.md` / `COMMAND.md` / `SCOPE.md` / `PLANS.md` / `DETAILS/*.md`）を追記・変更する前に、**必ずユーザーに最新版のファイル or テキスト提示を要求**する。
+- ユーザーから提示された最新版を根拠に、変更は **差分（diff）で提案**する（原則：差分→了承→反映）。
+- 会話の記憶や推測で「こっそり内容を補完/修正」しない（書いてないことは足さない）。
+- ファイル名/配置を変える場合は、参照元（例：`SPEC.md` が参照する `docs/HELP.md` 等）も同時に整合させる。
+
+### 役割（迷ったらここ）
+- `SPEC.md`：v0.xの確定仕様（MUST/SHOULD、完了条件）
+- `SCOPE.md`：v0.1/v0.2/Later の「入れる/入れない」境界（時期は未定でも範囲は固定）
+- `HELP.md`：/help表示文言の正本（一覧summary含む）
+- `COMMAND.md`：ユーザー向け早見表
+- `DETAILS/*.md`：機能ごとの詳細仕様（UI/Embed/遷移/パース規約など）
+- `PLANS.md`：未スケジュール案・設計メモ（未確定を含む）
+
+---
+
 ## package-lock.json（ゆる運用）
 - 依存を追加/更新した場合は `package-lock.json` が変わってOK（同時にコミットする）
 - 依存を触っていないのに `package-lock.json` が大量に変わった場合は、理由を一言添える
@@ -66,7 +86,7 @@
 
 ## 進め方（自由だけど迷った時の目安）
 - 目的に関係ない大規模整形は避ける（必要なら別PR）
-- TypeScriptを触ったら、できれば `npx tsc --noEmit`
+- TypeScriptを触ったら、できれば `npm run verify`（現状は型チェックのみ）
 - 動作確認は最低限でOK（例：Bot起動、該当コマンド1回）
 
 ---
@@ -74,3 +94,10 @@
 ## 出力（最小）
 - 日本語で短くでOK（識別子/エラー/ログは原文のまま）
 - 変更内容は「何をした / どう確認した」を1〜3行で十分
+- docs（仕様書）を変更した場合は、必ず「どのファイルを」「なぜ」変えたかを1行添える
+
+## Work Log（推奨）
+- `docs/agent-notes/_TEMPLATE.md` をコピーして、タスクごとにログを作る
+  - 例: `docs/agent-notes/agent_add-ping.md`
+- ログには「目的 / やったこと / 確認 / 次」を短く残す（5〜15行目安）
+- 秘密情報（トークン/.env値/秘密URL/個人情報）や冗長ログは書かない
