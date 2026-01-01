@@ -35,5 +35,12 @@ Thumbs.db
 .idea/
 *.iml
 
+# ===== Local data dir =====
+data/
+
+# ===== SQLite =====
+*.sqlite
+*.sqlite3
+
 # ===== Serena metadata =====
 .serena/
