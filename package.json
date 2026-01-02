@@ -8,10 +8,13 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.1",
+    "@types/better-sqlite3": "^7.6.13",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@sapphire/framework": "^5.3.3",
+    "better-sqlite3": "^11.7.2",
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3"
   }
