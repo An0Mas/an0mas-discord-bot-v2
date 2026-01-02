@@ -103,3 +103,17 @@ docs配下の文章は「仕様の正」として扱う。コンテキスト増�
 - 秘密情報（トークン/.env値/秘密URL/個人情報）や冗長ログは書かない
 - `docs/agent-notes/` はローカル運用（原則コミットしない）。テンプレ `_TEMPLATE.md` のみ追跡する。
 
+## Node / npm 実行（Windowsはフルパス推奨）
+- PATH競合を避けるため `npm` を素で叩かない。
+- 以降は原則 `C:\Program Files\nodejs\npm.cmd` をフルパスで実行する。
+  - 例：`& "C:\Program Files\nodejs\npm.cmd" i`
+  - 例：`& "C:\Program Files\nodejs\npm.cmd" run verify`
+- `Get-Command node` が失敗する環境では作業を進めず、`where.exe node` とフルパス実行で確認する。
+
+## PowerShell注意（Windows）
+- PowerShellでは `%VAR%`（cmd形式の環境変数展開）を使わない。文字列のまま扱われ、`%SystemDrive%` のような不要ディレクトリを作る原因になる。
+- 環境変数は必ず `$env:VAR` を使う（例：`$env:SystemDrive`）。
+
+## 予期せぬ生成物が出たら
+- リポジトリ直下に `%SystemDrive%/` や `_npm_version.txt` 等が作成された場合は、コミットせず削除する。
+- 削除できない場合は、関連プロセス（watch/dev等）停止後に再試行し、それでもダメなら `.gitignore` に追加して回避する。
