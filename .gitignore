@@ -47,6 +47,7 @@ data/
 # ===== Agent notes (local work logs) =====
 docs/agent-notes/*
 !docs/agent-notes/_TEMPLATE.md
+codex_prompt.md
 
 # ===== Serena metadata =====
 .serena/
