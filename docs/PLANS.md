@@ -120,3 +120,22 @@
 - 判定ロジック（Availabilityなど）はコマンド共通化する。
 - 仕様（SPEC/DETAILS）と表示文（HELP/COMMAND）を混ぜない。
 - 追加機能は `DETAILS/<feature>.md` を先に作ってから実装に入る。
+
+---
+
+## 8) コード構造の改善案（未スケジュール）
+
+### 構造分離（コマンド3〜4個になったら検討）
+- `index.ts` の登録処理を `src/registerCommands.ts` 等に分離
+- リスナーが増えたら `src/listeners/` を追加
+- 共通の型を `src/types.ts` に集約
+- 定数（画像URL、エラー文言等）を `src/constants.ts` にまとめる
+
+### コード品質（v0.2〜v0.3頃に検討）
+- エラーハンドリング共通化 - 共通の `errorHandler` 関数に集約
+- Lint設定（ESLint + Prettier）- 一貫したコードスタイルの強制
+
+### 運用改善（本番運用が見えてきたら検討）
+- ログ出力改善 - 起動時/エラー時のログを構造化（pino等）
+- 環境分離 - dev/prod で設定を切り替え（.env.dev, .env.prod）
+
