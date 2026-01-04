@@ -17,7 +17,7 @@ import {
   getHelpPageEntries,
   loadHelpEntries,
   parseHelpCustomId,
-} from "./help.js";
+} from "./commands/help.js";
 import {
   applyBosyuAction,
   buildBosyuModal,
@@ -29,7 +29,7 @@ import {
   parseBosyuModalSubmission,
   parseBosyuCustomId,
   parseBosyuEmbed,
-} from "./bosyu.js";
+} from "./commands/bosyu.js";
 
 const token = process.env.DISCORD_TOKEN;
 if (!token) throw new Error("DISCORD_TOKEN を .env に設定してね");

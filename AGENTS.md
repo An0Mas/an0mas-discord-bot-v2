@@ -21,6 +21,11 @@
 - Env: dotenv（`.env` はリポジトリ直下、コミット禁止）
 - Dev runner: tsx（`npm run dev`）
 
+### Code Structure（src/）
+- スラッシュコマンド実装は `src/commands/` に配置（例：`help.ts` / `bosyu.ts`）
+- `index.ts` は起動と登録のみ（肥大化禁止）
+- 新機能追加時は `src/commands/` に追加し、`index.ts` から登録する
+
 ### Commands
 - install: `npm i`
 - dev: `npm run dev`（Bot起動）
