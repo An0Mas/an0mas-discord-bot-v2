@@ -11,7 +11,6 @@ export const commandData = [
       option
         .setName("slots")
         .setDescription("作成者以外にあと何人参加できるか")
-        .setRequired(true)
         .setMinValue(1)
         .setMaxValue(100),
     )
@@ -19,7 +18,6 @@ export const commandData = [
       option
         .setName("title")
         .setDescription("募集のタイトル")
-        .setRequired(true)
         .setMinLength(1)
         .setMaxLength(256),
     )
@@ -27,7 +25,6 @@ export const commandData = [
       option
         .setName("body")
         .setDescription("募集内容")
-        .setRequired(true)
         .setMinLength(1)
         .setMaxLength(2000),
     ),

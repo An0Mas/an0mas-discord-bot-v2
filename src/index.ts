@@ -20,9 +20,13 @@ import {
 } from "./help.js";
 import {
   applyBosyuAction,
+  buildBosyuModal,
   buildBosyuComponents,
   buildBosyuEmbed,
   createBosyuState,
+  decideBosyuCommandInput,
+  parseBosyuModalOwnerId,
+  parseBosyuModalSubmission,
   parseBosyuCustomId,
   parseBosyuEmbed,
 } from "./bosyu.js";
@@ -63,17 +67,32 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 
     if (interaction.commandName === "bosyu") {
-      const slots = interaction.options.getNumber("slots", true);
-      const title = interaction.options.getString("title", true);
-      const body = interaction.options.getString("body", true);
+      const slots = interaction.options.getNumber("slots");
+      const title = interaction.options.getString("title");
+      const body = interaction.options.getString("body");
+      const decision = decideBosyuCommandInput({ slots, title, body });
+
+      if (decision.type === "modal") {
+        await interaction.showModal(buildBosyuModal(interaction.user.id));
+        return;
+      }
+
+      if (decision.type === "error") {
+        await interaction.reply({
+          content: decision.message,
+          ephemeral: true,
+        });
+        return;
+      }
+
       const ownerId = interaction.user.id;
       const ownerMention = `<@${ownerId}>`;
 
       const state = createBosyuState({
         ownerId,
-        title,
-        body,
-        remaining: slots,
+        title: decision.title,
+        body: decision.body,
+        remaining: decision.slots,
         members: [ownerMention],
         status: "OPEN",
       });
@@ -87,6 +106,48 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
       return;
     }
+  }
+
+  if (interaction.isModalSubmit()) {
+    const customId = interaction.customId;
+    const ownerId = parseBosyuModalOwnerId(customId);
+    if (!ownerId) {
+      return;
+    }
+
+    if (ownerId !== interaction.user.id) {
+      await interaction.reply({
+        content: "このモーダルはあなた専用です。",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const parsed = parseBosyuModalSubmission(interaction);
+    if (!parsed.ok) {
+      await interaction.reply({
+        content: parsed.message,
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const ownerMention = `<@${ownerId}>`;
+    const state = createBosyuState({
+      ownerId,
+      title: parsed.title,
+      body: parsed.body,
+      remaining: parsed.slots,
+      members: [ownerMention],
+      status: "OPEN",
+    });
+
+    const embed = buildBosyuEmbed(state);
+    const components = buildBosyuComponents(state);
+    await interaction.reply({
+      embeds: [embed],
+      components,
+    });
   }
 
   if (interaction.isButton()) {

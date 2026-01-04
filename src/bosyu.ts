@@ -4,6 +4,10 @@ import {
   ButtonStyle,
   Embed,
   EmbedBuilder,
+  ModalSubmitInteraction,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 
 type BosyuStatus = "OPEN" | "CLOSED";
@@ -37,6 +41,13 @@ const BOSYU_OPEN_IMAGE =
   "https://1.bp.blogspot.com/-0LJSR56tXL8/VVGVS2PQRsI/AAAAAAAAtkA/9EI2ZHrT5w8/s800/text_sankasya_bosyu.png";
 const BOSYU_CLOSED_IMAGE =
   "https://1.bp.blogspot.com/-fDI1k-dkGO8/X5OcjEhqRUI/AAAAAAABcAc/DSrwuOQW6xMPgE1XZ8zvqhV0akkIctmTgCNcBGAsYHQ/s819/text_oshirase_eigyousyuuryou.png";
+
+const BOSYU_MODAL_ID_PREFIX = "bosyu-modal:";
+const BOSYU_MODAL_SLOTS_ID = "bosyu-modal-slots";
+const BOSYU_MODAL_TITLE_ID = "bosyu-modal-title";
+const BOSYU_MODAL_BODY_ID = "bosyu-modal-body";
+const BOSYU_PARTIAL_ERROR =
+  "slots/title/body は3項目すべて入力するか、引数なしで /bosyu を実行してモーダル入力してください。";
 
 export function createBosyuState(input: BosyuState) {
   return input;
@@ -127,6 +138,108 @@ export function parseBosyuCustomId(customId: string): ParsedBosyuCustomId | null
   return { action, ownerId };
 }
 
+export function buildBosyuModal(userId: string) {
+  const slotsInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MODAL_SLOTS_ID)
+    .setLabel("募集人数（あと何名）")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const titleInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MODAL_TITLE_ID)
+    .setLabel("タイトル")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const bodyInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MODAL_BODY_ID)
+    .setLabel("内容")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true);
+
+  return new ModalBuilder()
+    .setCustomId(`${BOSYU_MODAL_ID_PREFIX}${userId}`)
+    .setTitle("募集作成")
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(slotsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(bodyInput),
+    );
+}
+
+export function parseBosyuModalOwnerId(customId: string) {
+  if (!customId.startsWith(BOSYU_MODAL_ID_PREFIX)) return null;
+  const ownerId = customId.slice(BOSYU_MODAL_ID_PREFIX.length);
+  return ownerId.length > 0 ? ownerId : null;
+}
+
+export function decideBosyuCommandInput(input: {
+  slots: number | null;
+  title: string | null;
+  body: string | null;
+}):
+  | { type: "modal" }
+  | { type: "error"; message: string }
+  | { type: "create"; slots: number; title: string; body: string } {
+  const hasSlots = input.slots !== null;
+  const hasTitle = input.title !== null;
+  const hasBody = input.body !== null;
+  const hasAny = hasSlots || hasTitle || hasBody;
+  const hasAll = hasSlots && hasTitle && hasBody;
+
+  if (!hasAny) {
+    return { type: "modal" };
+  }
+
+  if (!hasAll) {
+    return { type: "error", message: BOSYU_PARTIAL_ERROR };
+  }
+
+  const validated = validateBosyuInput({
+    slots: input.slots as number,
+    title: input.title as string,
+    body: input.body as string,
+  });
+
+  if (!validated.ok) {
+    return { type: "error", message: validated.message };
+  }
+
+  return {
+    type: "create",
+    slots: validated.slots,
+    title: validated.title,
+    body: validated.body,
+  };
+}
+
+export function parseBosyuModalSubmission(
+  interaction: ModalSubmitInteraction,
+):
+  | { ok: true; slots: number; title: string; body: string }
+  | { ok: false; message: string } {
+  const slotsRaw = interaction.fields
+    .getTextInputValue(BOSYU_MODAL_SLOTS_ID)
+    .trim();
+  const titleRaw = interaction.fields
+    .getTextInputValue(BOSYU_MODAL_TITLE_ID)
+    .trim();
+  const bodyRaw = interaction.fields
+    .getTextInputValue(BOSYU_MODAL_BODY_ID)
+    .trim();
+
+  const slotsValue = parseSlotsInput(slotsRaw);
+  if (slotsValue === null || slotsValue < 1) {
+    return { ok: false, message: "slots は1以上の整数で入力してください。" };
+  }
+
+  return validateBosyuInput({
+    slots: slotsValue,
+    title: titleRaw,
+    body: bodyRaw,
+  });
+}
+
 export function parseBosyuEmbed(embed: Embed | null, ownerId: string) {
   if (!embed) return null;
 
@@ -168,6 +281,51 @@ export function parseBosyuEmbed(embed: Embed | null, ownerId: string) {
     remaining,
     status,
   } satisfies BosyuState;
+}
+
+function parseSlotsInput(value: string) {
+  if (!/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return null;
+  return parsed;
+}
+
+function validateBosyuInput(input: {
+  slots: number;
+  title: string;
+  body: string;
+}):
+  | { ok: true; slots: number; title: string; body: string }
+  | { ok: false; message: string } {
+  if (!Number.isInteger(input.slots) || input.slots < 1) {
+    return {
+      ok: false,
+      message: "slots は1以上の整数で入力してください。",
+    };
+  }
+
+  const trimmedTitle = input.title.trim();
+  if (trimmedTitle.length === 0) {
+    return {
+      ok: false,
+      message: "title は空欄にできません。",
+    };
+  }
+
+  const trimmedBody = input.body.trim();
+  if (trimmedBody.length === 0) {
+    return {
+      ok: false,
+      message: "body は空欄にできません。",
+    };
+  }
+
+  return {
+    ok: true,
+    slots: input.slots,
+    title: trimmedTitle,
+    body: trimmedBody,
+  };
 }
 
 export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
