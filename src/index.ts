@@ -20,12 +20,13 @@ import {
 } from "./commands/help.js";
 import {
   applyBosyuAction,
+  buildBosyuEditModal,
   buildBosyuModal,
   buildBosyuComponents,
   buildBosyuEmbed,
   createBosyuState,
   decideBosyuCommandInput,
-  parseBosyuModalOwnerId,
+  parseBosyuModalTarget,
   parseBosyuModalSubmission,
   parseBosyuCustomId,
   parseBosyuEmbed,
@@ -110,12 +111,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   if (interaction.isModalSubmit()) {
     const customId = interaction.customId;
-    const ownerId = parseBosyuModalOwnerId(customId);
-    if (!ownerId) {
+    const target = parseBosyuModalTarget(customId);
+    if (!target) {
       return;
     }
 
-    if (ownerId !== interaction.user.id) {
+    if (target.ownerId !== interaction.user.id) {
       await interaction.reply({
         content: "このモーダルはあなた専用です。",
         ephemeral: true,
@@ -132,21 +133,71 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
-    const ownerMention = `<@${ownerId}>`;
-    const state = createBosyuState({
-      ownerId,
+    if (target.type === "create") {
+      const ownerMention = `<@${target.ownerId}>`;
+      const state = createBosyuState({
+        ownerId: target.ownerId,
+        title: parsed.title,
+        body: parsed.body,
+        remaining: parsed.slots,
+        members: [ownerMention],
+        status: "OPEN",
+      });
+
+      const embed = buildBosyuEmbed(state);
+      const components = buildBosyuComponents(state);
+      await interaction.reply({
+        embeds: [embed],
+        components,
+      });
+      return;
+    }
+
+    if (!interaction.channel || !interaction.channel.isTextBased()) {
+      await interaction.reply({
+        content: "編集対象のメッセージを取得できませんでした。",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const message = await interaction.channel.messages
+      .fetch(target.messageId)
+      .catch(() => null);
+    if (!message) {
+      await interaction.reply({
+        content: "編集対象のメッセージが見つかりませんでした。",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const currentEmbed = message.embeds[0];
+    const currentState = parseBosyuEmbed(currentEmbed, target.ownerId);
+    if (!currentState) {
+      await interaction.reply({
+        content: "募集データを読み取れませんでした。",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const nextState = createBosyuState({
+      ...currentState,
       title: parsed.title,
       body: parsed.body,
       remaining: parsed.slots,
-      members: [ownerMention],
-      status: "OPEN",
     });
 
-    const embed = buildBosyuEmbed(state);
-    const components = buildBosyuComponents(state);
+    const nextEmbed = buildBosyuEmbed(nextState);
+    const nextComponents = buildBosyuComponents(nextState);
+    await message.edit({
+      embeds: [nextEmbed],
+      components: nextComponents,
+    });
     await interaction.reply({
-      embeds: [embed],
-      components,
+      content: "募集内容を更新しました。",
+      ephemeral: true,
     });
   }
 
@@ -236,6 +287,15 @@ async function handleBosyuButton(
   const state = parseBosyuEmbed(embed, parsed.ownerId);
   if (!state) {
     await interaction.deferUpdate();
+    return;
+  }
+
+  if (parsed.action === "edit") {
+    if (interaction.user.id !== parsed.ownerId) {
+      await interaction.deferUpdate();
+      return;
+    }
+    await interaction.showModal(buildBosyuEditModal(state, interaction.message.id));
     return;
   }
 

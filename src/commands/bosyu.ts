@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 
 type BosyuStatus = "OPEN" | "CLOSED";
-type BosyuAction = "join" | "cancel" | "plus" | "minus" | "close";
+type BosyuAction = "join" | "cancel" | "plus" | "minus" | "close" | "edit";
 
 export type BosyuState = {
   ownerId: string;
@@ -43,6 +43,7 @@ const BOSYU_CLOSED_IMAGE =
   "https://1.bp.blogspot.com/-fDI1k-dkGO8/X5OcjEhqRUI/AAAAAAABcAc/DSrwuOQW6xMPgE1XZ8zvqhV0akkIctmTgCNcBGAsYHQ/s819/text_oshirase_eigyousyuuryou.png";
 
 const BOSYU_MODAL_ID_PREFIX = "bosyu-modal:";
+const BOSYU_EDIT_MODAL_ID_PREFIX = "bosyu-edit:";
 const BOSYU_MODAL_SLOTS_ID = "bosyu-modal-slots";
 const BOSYU_MODAL_TITLE_ID = "bosyu-modal-title";
 const BOSYU_MODAL_BODY_ID = "bosyu-modal-body";
@@ -110,6 +111,11 @@ export function buildBosyuComponents(state: BosyuState) {
     .setStyle(ButtonStyle.Secondary)
     .setDisabled(closed);
 
+  const editButton = new ButtonBuilder()
+    .setCustomId(`bosyu:edit:${state.ownerId}`)
+    .setLabel("編集")
+    .setStyle(ButtonStyle.Secondary);
+
   return [
     new ActionRowBuilder<ButtonBuilder>().addComponents(
       joinButton,
@@ -118,6 +124,7 @@ export function buildBosyuComponents(state: BosyuState) {
       plusButton,
       minusButton,
     ),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(editButton),
   ];
 }
 
@@ -130,7 +137,8 @@ export function parseBosyuCustomId(customId: string): ParsedBosyuCustomId | null
     action !== "cancel" &&
     action !== "plus" &&
     action !== "minus" &&
-    action !== "close"
+    action !== "close" &&
+    action !== "edit"
   ) {
     return null;
   }
@@ -167,10 +175,69 @@ export function buildBosyuModal(userId: string) {
     );
 }
 
+export function buildBosyuEditModal(state: BosyuState, messageId: string) {
+  const slotsInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MODAL_SLOTS_ID)
+    .setLabel("募集人数（あと何名）")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(String(state.remaining));
+
+  const titleInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MODAL_TITLE_ID)
+    .setLabel("タイトル")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(state.title);
+
+  const bodyInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MODAL_BODY_ID)
+    .setLabel("内容")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true)
+    .setValue(state.body);
+
+  return new ModalBuilder()
+    .setCustomId(`${BOSYU_EDIT_MODAL_ID_PREFIX}${state.ownerId}:${messageId}`)
+    .setTitle("募集編集")
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(slotsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(bodyInput),
+    );
+}
+
 export function parseBosyuModalOwnerId(customId: string) {
   if (!customId.startsWith(BOSYU_MODAL_ID_PREFIX)) return null;
   const ownerId = customId.slice(BOSYU_MODAL_ID_PREFIX.length);
   return ownerId.length > 0 ? ownerId : null;
+}
+
+export function parseBosyuEditModalTarget(customId: string) {
+  if (!customId.startsWith(BOSYU_EDIT_MODAL_ID_PREFIX)) return null;
+  const payload = customId.slice(BOSYU_EDIT_MODAL_ID_PREFIX.length);
+  const parts = payload.split(":");
+  if (parts.length !== 2) return null;
+  const [ownerId, messageId] = parts;
+  if (!ownerId || !messageId) return null;
+  return { ownerId, messageId };
+}
+
+export function parseBosyuModalTarget(customId: string):
+  | { type: "create"; ownerId: string }
+  | { type: "edit"; ownerId: string; messageId: string }
+  | null {
+  const createOwnerId = parseBosyuModalOwnerId(customId);
+  if (createOwnerId) {
+    return { type: "create", ownerId: createOwnerId };
+  }
+
+  const editTarget = parseBosyuEditModalTarget(customId);
+  if (editTarget) {
+    return { type: "edit", ...editTarget };
+  }
+
+  return null;
 }
 
 export function decideBosyuCommandInput(input: {
@@ -284,10 +351,17 @@ export function parseBosyuEmbed(embed: Embed | null, ownerId: string) {
 }
 
 function parseSlotsInput(value: string) {
-  if (!/^\d+$/.test(value)) return null;
-  const parsed = Number(value);
+  const normalized = normalizeDigits(value.trim());
+  if (!/^\d+$/.test(normalized)) return null;
+  const parsed = Number(normalized);
   if (!Number.isFinite(parsed)) return null;
   return parsed;
+}
+
+function normalizeDigits(value: string) {
+  return value.replace(/[０-９]/g, (digit) =>
+    String.fromCharCode(digit.charCodeAt(0) - 0xff10 + 0x30),
+  );
 }
 
 function validateBosyuInput(input: {
