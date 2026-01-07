@@ -12,6 +12,12 @@
 - 引数なし：モーダルで入力
 - 引数あり：即時作成
 
+### /bosyu-bpsr
+BPSR（ゲーム）特化のロール別募集を作成します。
+- 🛡️ タンク / ⚔️ アタッカー / 💚 ヒーラー でロール選択
+- ロール変更はボタン押し直しで自動切替
+- 投稿者は自動参加せず、ボタンで参加
+
 ## セットアップ
 
 ### 1. 依存インストール
@@ -38,13 +44,18 @@ npm run dev
 ## ディレクトリ構成
 ```
 src/
-├── index.ts          # エントリーポイント
-├── db.ts             # DB関連
-├── command-data.ts   # コマンド定義
-├── deploy-commands.ts
-└── commands/
-    ├── help.ts       # /help 機能
-    └── bosyu.ts      # /bosyu 機能
+├── index.ts                 # エントリーポイント（ルーティング）
+├── db.ts                    # DB初期化
+├── command-data.ts          # スラッシュコマンド定義
+├── deploy-commands.ts       # コマンド登録スクリプト
+├── commands/                # コマンドロジック
+│   ├── help.ts
+│   ├── bosyu.ts
+│   └── bosyu-bpsr.ts
+└── handlers/                # Interactionハンドラ
+    ├── button-handlers.ts   # ボタン処理
+    ├── modal-handlers.ts    # モーダル処理
+    └── command-handlers.ts  # スラッシュコマンド処理
 ```
 
 ## DB
