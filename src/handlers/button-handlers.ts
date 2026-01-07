@@ -24,6 +24,12 @@ import {
     parseBosyuBpsrCustomId,
     parseBosyuBpsrEmbed,
 } from "../commands/bosyu-bpsr.js";
+import {
+    parseRemindListCustomId,
+    buildRemindListEmbed,
+} from "../commands/remind.js";
+import { deleteReminderForUser, getRemindersForUser } from "../db.js";
+import { cancelReminderTimer } from "../scheduler.js";
 
 /**
  * Helpボタンの処理
@@ -180,5 +186,45 @@ export async function handleBosyuBpsrButton(
     await interaction.update({
         embeds: [nextEmbed],
         components: nextComponents,
+    });
+}
+
+/**
+ * リマインダー削除ボタンの処理
+ */
+export async function handleRemindListButton(
+    interaction: ButtonInteraction,
+    customId: string,
+) {
+    const parsed = parseRemindListCustomId(customId);
+    if (!parsed) {
+        await interaction.deferUpdate();
+        return;
+    }
+
+    if (interaction.user.id !== parsed.userId) {
+        await interaction.deferUpdate();
+        return;
+    }
+
+    // タイマーをキャンセル
+    cancelReminderTimer(parsed.reminderId);
+
+    // DBから削除
+    const deleted = deleteReminderForUser(parsed.userId, parsed.reminderId);
+    if (!deleted) {
+        await interaction.reply({
+            content: "リマインダーが見つかりませんでした。",
+            ephemeral: true,
+        });
+        return;
+    }
+
+    // 更新された一覧を表示
+    const reminders = getRemindersForUser(parsed.userId);
+    const { embed, components } = buildRemindListEmbed(reminders, parsed.userId);
+    await interaction.update({
+        embeds: [embed],
+        components,
     });
 }

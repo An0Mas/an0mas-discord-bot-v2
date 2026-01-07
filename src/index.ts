@@ -6,19 +6,24 @@ import { Events, GatewayIntentBits } from "discord.js";
 
 import { initDatabase } from "./db.js";
 import { loadHelpEntries } from "./commands/help.js";
+import { initializeScheduler } from "./scheduler.js";
 import {
   handleHelpCommand,
   handleBosyuCommand,
   handleBosyuBpsrCommand,
+  handleRemindCommand,
+  handleRemindListCommand,
 } from "./handlers/command-handlers.js";
 import {
   handleBosyuModalSubmit,
   handleBosyuBpsrModalSubmit,
+  handleRemindModalSubmit,
 } from "./handlers/modal-handlers.js";
 import {
   handleHelpButton,
   handleBosyuButton,
   handleBosyuBpsrButton,
+  handleRemindListButton,
 } from "./handlers/button-handlers.js";
 
 const token = process.env.DISCORD_TOKEN;
@@ -33,6 +38,8 @@ const client = new SapphireClient({
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
+  // スケジューラ初期化（起動時にDBからリマインダーを読み込み）
+  initializeScheduler(readyClient);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -52,6 +59,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await handleBosyuBpsrCommand(interaction);
       return;
     }
+
+    if (interaction.commandName === "remind") {
+      await handleRemindCommand(interaction);
+      return;
+    }
+
+    if (interaction.commandName === "remind-list") {
+      await handleRemindListCommand(interaction);
+      return;
+    }
   }
 
   // モーダル送信処理
@@ -63,6 +80,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     // BPSRモーダル処理
     if (await handleBosyuBpsrModalSubmit(interaction)) {
+      return;
+    }
+
+    // リマインダーモーダル処理
+    if (await handleRemindModalSubmit(interaction, client)) {
       return;
     }
   }
@@ -83,6 +105,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (customId.startsWith("bpsr:")) {
       await handleBosyuBpsrButton(interaction, customId);
+      return;
+    }
+
+    if (customId.startsWith("remind:")) {
+      await handleRemindListButton(interaction, customId);
       return;
     }
   }

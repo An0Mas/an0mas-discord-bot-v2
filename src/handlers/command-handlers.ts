@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Client } from "discord.js";
 import {
     buildHelpList,
     getHelpPageCount,
@@ -19,6 +19,13 @@ import {
     createBosyuBpsrState,
     decideBosyuBpsrCommandInput,
 } from "../commands/bosyu-bpsr.js";
+import {
+    buildRemindModal,
+    buildRemindListEmbed,
+    calculateNotifyAt,
+} from "../commands/remind.js";
+import { addReminder, getRemindersForUser } from "../db.js";
+import { scheduleReminder } from "../scheduler.js";
 
 /**
  * /help コマンドの処理
@@ -133,5 +140,30 @@ export async function handleBosyuBpsrCommand(
     await interaction.reply({
         embeds: [embed],
         components,
+    });
+}
+
+/**
+ * /remind コマンドの処理
+ */
+export async function handleRemindCommand(
+    interaction: ChatInputCommandInteraction,
+): Promise<void> {
+    await interaction.showModal(buildRemindModal(interaction.user.id));
+}
+
+/**
+ * /remind-list コマンドの処理
+ */
+export async function handleRemindListCommand(
+    interaction: ChatInputCommandInteraction,
+): Promise<void> {
+    const reminders = getRemindersForUser(interaction.user.id);
+    const { embed, components } = buildRemindListEmbed(reminders, interaction.user.id);
+
+    await interaction.reply({
+        embeds: [embed],
+        components,
+        ephemeral: true,
     });
 }

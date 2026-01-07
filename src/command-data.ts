@@ -52,6 +52,12 @@ export const commandData = [
         .setMinLength(1)
         .setMaxLength(2000),
     ),
+  new SlashCommandBuilder()
+    .setName("remind")
+    .setDescription("リマインダーを登録します。"),
+  new SlashCommandBuilder()
+    .setName("remind-list")
+    .setDescription("自分のリマインダー一覧を表示します。"),
 ];
 
 export const commandDataJson = commandData.map((command) => command.toJSON());
