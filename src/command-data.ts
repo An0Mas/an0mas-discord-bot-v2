@@ -28,6 +28,30 @@ export const commandData = [
         .setMinLength(1)
         .setMaxLength(2000),
     ),
+  new SlashCommandBuilder()
+    .setName("bosyu-bpsr")
+    .setDescription("BPSR特化のロール別募集を作成します。")
+    .addNumberOption((option) =>
+      option
+        .setName("slots")
+        .setDescription("募集人数（自分を含めてあと何人参加できるか）")
+        .setMinValue(1)
+        .setMaxValue(100),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("title")
+        .setDescription("募集のタイトル")
+        .setMinLength(1)
+        .setMaxLength(256),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("body")
+        .setDescription("募集内容")
+        .setMinLength(1)
+        .setMaxLength(2000),
+    ),
 ];
 
 export const commandDataJson = commandData.map((command) => command.toJSON());

@@ -7,7 +7,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 
-type HelpEntry = {
+export type HelpEntry = {
   name: string;
   summary: string;
   detail: string;

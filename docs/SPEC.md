@@ -37,6 +37,24 @@
   - コード・ログ・会話ログに直書きしない
 - Web操作（検証/調査など）：Antigravity（Chrome MCP）に任せる
 
+### 3.1 プロジェクト構成（src/）
+```
+src/
+├── index.ts                 # エントリポイント（Client初期化 + ルーティング）
+├── db.ts                    # SQLite初期化
+├── command-data.ts          # スラッシュコマンド定義
+├── deploy-commands.ts       # コマンド登録スクリプト
+├── commands/                # コマンドロジック
+│   ├── help.ts
+│   ├── bosyu.ts
+│   └── bosyu-bpsr.ts
+└── handlers/                # Interactionハンドラ
+    ├── button-handlers.ts   # ボタン処理
+    ├── modal-handlers.ts    # モーダル処理
+    └── command-handlers.ts  # スラッシュコマンド処理
+```
+
+
 ## 4. データ永続化（SQLite）
 ### 4.1 DBファイル配置（推奨）
 - 開発用DB：`./data/dev.sqlite3`
