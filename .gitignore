@@ -54,6 +54,10 @@ codex_prompt2.md
 # ===== Serena metadata =====
 .serena/
 
+# ===== AI agent configs (local only) =====
+GEMINI.md
+WARP.md
+
 # SpecStory project identity file
 /.project.json
 # SpecStory explanation file
