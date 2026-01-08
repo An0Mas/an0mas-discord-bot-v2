@@ -4,7 +4,7 @@
     "dev": "tsx watch src/index.ts",
     "deploy": "tsx src/deploy-commands.ts",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck"
+    "verify": "pnpm typecheck"
   },
   "devDependencies": {
     "@types/node": "^25.0.1",

@@ -22,7 +22,7 @@ BPSR（ゲーム）特化のロール別募集を作成します。
 
 ### 1. 依存インストール
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. 環境変数
@@ -33,12 +33,12 @@ npm install
 
 ### 3. コマンド登録
 ```bash
-npm run deploy
+pnpm deploy
 ```
 
 ### 4. 起動
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## ディレクトリ構成

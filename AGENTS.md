@@ -15,12 +15,12 @@
 ## Repo Specific
 - Root: `C:\AI_Work\an0mas-discord-bot-v2`
 - Main code: `src/`
-- Package manager: `npm`
+- Package manager: `pnpm`
 - OS: Windows（PowerShell想定）
 - Language: TypeScript
 - Bot framework: discord.js
 - Env: dotenv（`.env` はリポジトリ直下、コミット禁止）
-- Dev runner: tsx（`npm run dev`）
+- Dev runner: tsx（`pnpm dev`）
 
 ### Code Structure（src/）
 - スラッシュコマンド実装は `src/commands/` に配置（例：`help.ts` / `bosyu.ts`）
@@ -28,11 +28,11 @@
 - 新機能追加時は `src/commands/` に追加し、`index.ts` から登録する
 
 ### Commands
-- install: `npm i`
-- dev: `npm run dev`（Bot起動）
-- deploy: `npm run deploy`（スラッシュコマンド登録）
-- typecheck: `npm run typecheck`（TypeScriptの型チェック）
-- verify: `npm run verify`（確認まとめ：現状はtypecheckのみ）
+- install: `pnpm install`
+- dev: `pnpm dev`（Bot起動）
+- deploy: `pnpm deploy`（スラッシュコマンド登録）
+- typecheck: `pnpm typecheck`（TypeScriptの型チェック）
+- verify: `pnpm verify`（確認まとめ：現状はtypecheckのみ）
 - test: （未設定なら省略可 / 追加したらここに追記）
 
 ---
