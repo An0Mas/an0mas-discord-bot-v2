@@ -17,18 +17,32 @@ function toHalfWidth(str: string): string {
         .replace(/：/g, ":");
 }
 
-// 時刻パース（HH:MM形式）
+// 時刻パース（HH:MM または HHMM 形式）
 export function parseTime(input: string): { hours: number; minutes: number } | null {
     const normalized = toHalfWidth(input.trim());
-    const match = normalized.match(/^(\d{1,2}):(\d{2})$/);
-    if (!match) return null;
 
-    const hours = parseInt(match[1], 10);
-    const minutes = parseInt(match[2], 10);
+    // HH:MM 形式
+    let match = normalized.match(/^(\d{1,2}):(\d{2})$/);
+    if (match) {
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+            return { hours, minutes };
+        }
+        return null;
+    }
 
-    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+    // HHMM 形式（コロンなし、3〜4桁）
+    match = normalized.match(/^(\d{1,2})(\d{2})$/);
+    if (match) {
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+            return { hours, minutes };
+        }
+    }
 
-    return { hours, minutes };
+    return null;
 }
 
 // 何分前パース
@@ -58,9 +72,9 @@ export function buildRemindModal(userId: string): ModalBuilder {
 
     const timeInput = new TextInputBuilder()
         .setCustomId("time")
-        .setLabel("通知時間（例: 14:00）")
+        .setLabel("通知時間（例: 1400、コロン省略可）")
         .setStyle(TextInputStyle.Short)
-        .setPlaceholder("14:00")
+        .setPlaceholder("1400")
         .setRequired(true)
         .setMaxLength(10);
 
@@ -107,7 +121,7 @@ export function parseRemindModalSubmission(interaction: ModalSubmitInteraction):
 
     const time = parseTime(timeInput);
     if (!time) {
-        return { ok: false, message: "時刻は HH:MM 形式で入力してください（例: 14:00）" };
+        return { ok: false, message: "時刻は 1400 または 14:00 形式で入力してください" };
     }
 
     const minutesBefore = parseMinutesBefore(minutesBeforeInput);
