@@ -60,7 +60,10 @@ src/
 - 開発用DB：`./data/dev.sqlite3`
 - `data/` は gitignore 対象（DBファイルをコミットしない）
 
-### 4.2 DBの役割（v0.1）
+### 4.2 DBスキーマ
+- 詳細は [`docs/DB-SCHEMA.md`](./DB-SCHEMA.md) を参照。
+
+### 4.3 DBの役割（v0.1）
 - v0.1 は「まず動く」を優先し、SQLiteで状態を保持する。
 - ただし、機能によっては **メッセージ内容（Embed等）から状態復元**できる設計を優先してよい（bosyu等）。
 
