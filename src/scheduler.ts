@@ -13,9 +13,15 @@ async function executeReminder(client: Client, reminder: Reminder) {
         await user.send({ embeds: [embed] });
         console.log(`[Scheduler] リマインダー送信成功: ID=${reminder.id}, User=${reminder.user_id}`);
     } catch (error) {
-        console.error(`[Scheduler] リマインダー送信失敗: ID=${reminder.id}`, error);
+        // DM拒否、ユーザー削除、ブロック等で失敗する可能性あり
+        if (error instanceof Error) {
+            console.error(`[Scheduler] リマインダー送信失敗: ID=${reminder.id}`, error.message);
+            console.error(error.stack);
+        } else {
+            console.error(`[Scheduler] リマインダー送信失敗: ID=${reminder.id}`, error);
+        }
     } finally {
-        // DBから削除
+        // 成功・失敗に関わらずDBから削除（再送は行わない）
         deleteReminder(reminder.id);
         activeTimers.delete(reminder.id);
     }

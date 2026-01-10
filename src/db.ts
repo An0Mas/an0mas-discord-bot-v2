@@ -15,6 +15,7 @@ function getDb() {
     const Database = require("better-sqlite3") as typeof import("better-sqlite3");
     db = new Database(dbPath);
     db.pragma("journal_mode = WAL");
+    db.pragma("busy_timeout = 5000"); // ロック競合時に5秒リトライ
   }
   return db;
 }

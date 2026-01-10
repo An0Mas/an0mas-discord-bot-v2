@@ -1,6 +1,19 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
+// ========================
+// グローバルエラーハンドラ（Step 5）
+// ========================
+process.on("uncaughtException", (error) => {
+  console.error("[FATAL] uncaughtException:", error);
+  // 致命的なエラーなのでプロセス終了（PM2等で自動再起動を推奨）
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[ERROR] unhandledRejection at:", promise, "reason:", reason);
+  // 継続可能なエラーとして扱う（クラッシュさせない）
+});
 import { SapphireClient } from "@sapphire/framework";
 import { Events, GatewayIntentBits } from "discord.js";
 import { fileURLToPath } from "node:url";
