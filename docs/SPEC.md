@@ -38,20 +38,32 @@
 - Web操作（検証/調査など）：Antigravity（Chrome MCP）に任せる
 
 ### 3.1 プロジェクト構成（src/）
+
 ```
 src/
-├── index.ts                 # エントリポイント（Client初期化 + ルーティング）
+├── index.ts                 # エントリポイント（SapphireClient初期化）
 ├── db.ts                    # SQLite初期化
-├── command-data.ts          # スラッシュコマンド定義
-├── deploy-commands.ts       # コマンド登録スクリプト
-├── commands/                # コマンドロジック
-│   ├── help.ts
-│   ├── bosyu.ts
-│   └── bosyu-bpsr.ts
-└── handlers/                # Interactionハンドラ
-    ├── button-handlers.ts   # ボタン処理
-    ├── modal-handlers.ts    # モーダル処理
-    └── command-handlers.ts  # スラッシュコマンド処理
+├── config.ts                # 環境変数設定
+├── permissions.ts           # 権限チェック
+├── scheduler.ts             # リマインダースケジューラ
+├── commands/                # Sapphire Commandクラス（自動登録）
+│   ├── HelpCommand.ts
+│   ├── BosyuCommand.ts
+│   ├── BosyuBpsrCommand.ts
+│   ├── RemindCommand.ts
+│   ├── RemindListCommand.ts
+│   ├── AllowCommand.ts
+│   └── ConfigCommand.ts
+├── interaction-handlers/    # Sapphire InteractionHandler（ボタン・モーダル）
+│   ├── HelpButtonHandler.ts
+│   ├── BosyuButtonHandler.ts
+│   ├── BosyuModalHandler.ts
+│   └── ...
+└── lib/                     # 共有ユーティリティ
+    ├── help-utils.ts
+    ├── bosyu-utils.ts
+    ├── bosyu-bpsr-utils.ts
+    └── remind-utils.ts
 ```
 
 

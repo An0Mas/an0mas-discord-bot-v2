@@ -2,7 +2,6 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "deploy": "tsx src/deploy-commands.ts",
     "typecheck": "tsc --noEmit",
     "verify": "pnpm typecheck"
   },

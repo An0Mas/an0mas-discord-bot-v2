@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 import { getAllReminders, deleteReminder, Reminder } from "./db.js";
-import { buildRemindNotification } from "./legacy-commands/remind.js";
+import { buildRemindNotification } from "./lib/remind-utils.js";
 
 // アクティブなタイマーを管理
 const activeTimers = new Map<number, NodeJS.Timeout>();
