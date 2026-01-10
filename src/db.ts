@@ -26,6 +26,16 @@ export function initDatabase() {
   database.prepare("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)")
     .run();
 
+  // Guild設定テーブル（権限管理用）
+  database.prepare(`
+    CREATE TABLE IF NOT EXISTS guild_config (
+      guild_id   TEXT PRIMARY KEY,
+      enabled    INTEGER NOT NULL DEFAULT 0,
+      admin_role TEXT,
+      config_json TEXT
+    )
+  `).run();
+
   // リマインダーテーブル
   database.prepare(`
     CREATE TABLE IF NOT EXISTS reminders (
@@ -97,4 +107,62 @@ export function deleteReminderForUser(userId: string, id: number): boolean {
   const database = getDb();
   const result = database.prepare("DELETE FROM reminders WHERE id = ? AND user_id = ?").run(id, userId);
   return result.changes > 0;
+}
+
+// ========================
+// Guild設定関連
+// ========================
+
+// GuildConfig型
+export type GuildConfig = {
+  guild_id: string;
+  enabled: number;
+  admin_role: string | null;
+  config_json: string | null;
+};
+
+// Guildが許可されているか確認
+export function isGuildEnabled(guildId: string): boolean {
+  const database = getDb();
+  const row = database.prepare(
+    "SELECT enabled FROM guild_config WHERE guild_id = ?"
+  ).get(guildId) as { enabled: number } | undefined;
+  return row?.enabled === 1;
+}
+
+// Guildを許可する
+export function enableGuild(guildId: string): void {
+  const database = getDb();
+  database.prepare(`
+    INSERT INTO guild_config (guild_id, enabled)
+    VALUES (?, 1)
+    ON CONFLICT(guild_id) DO UPDATE SET enabled = 1
+  `).run(guildId);
+}
+
+// Guildを不許可にする
+export function disableGuild(guildId: string): void {
+  const database = getDb();
+  database.prepare(`
+    INSERT INTO guild_config (guild_id, enabled)
+    VALUES (?, 0)
+    ON CONFLICT(guild_id) DO UPDATE SET enabled = 0
+  `).run(guildId);
+}
+
+// Guild設定を取得
+export function getGuildConfig(guildId: string): GuildConfig | null {
+  const database = getDb();
+  const row = database.prepare(
+    "SELECT * FROM guild_config WHERE guild_id = ?"
+  ).get(guildId) as GuildConfig | undefined;
+  return row ?? null;
+}
+
+// 全許可済みGuildを取得
+export function getAllEnabledGuilds(): GuildConfig[] {
+  const database = getDb();
+  return database.prepare(
+    "SELECT * FROM guild_config WHERE enabled = 1"
+  ).all() as GuildConfig[];
 }

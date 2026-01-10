@@ -53,8 +53,30 @@ CREATE INDEX IF NOT EXISTS idx_reminders_notify_at ON reminders(notify_at);
 
 ---
 
+### 3. guild_config
+Guild（サーバー）設定テーブル — 権限管理用
+
+```sql
+CREATE TABLE IF NOT EXISTS guild_config (
+  guild_id   TEXT PRIMARY KEY,
+  enabled    INTEGER NOT NULL DEFAULT 0,
+  admin_role TEXT,
+  config_json TEXT
+);
+```
+
+| カラム | 型 | 説明 |
+|--------|-----|------|
+| guild_id | TEXT | DiscordギルドID（PK） |
+| enabled | INTEGER | Bot利用許可（1=許可, 0=未許可） |
+| admin_role | TEXT | 設定変更権限を委譲するロールID（将来用） |
+| config_json | TEXT | その他設定をJSONで保持（将来用） |
+
+---
+
 ## 使用ライブラリ
 - `better-sqlite3`
 
 ## ファイル
 - `src/db.ts` - DB初期化＋CRUD関数
+

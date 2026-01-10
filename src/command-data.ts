@@ -58,6 +58,26 @@ export const commandData = [
   new SlashCommandBuilder()
     .setName("remind-list")
     .setDescription("自分のリマインダー一覧を表示します。"),
+  new SlashCommandBuilder()
+    .setName("allow")
+    .setDescription("Bot利用許可を管理します（オーナー専用）")
+    .addSubcommandGroup((group) =>
+      group
+        .setName("guild")
+        .setDescription("Guild単位の許可を管理")
+        .addSubcommand((sub) =>
+          sub.setName("add").setDescription("このサーバーを許可リストに追加")
+        )
+        .addSubcommand((sub) =>
+          sub.setName("remove").setDescription("このサーバーを許可リストから削除")
+        )
+    ),
+  new SlashCommandBuilder()
+    .setName("config")
+    .setDescription("Bot設定を表示・管理します（オーナー専用）")
+    .addSubcommand((sub) =>
+      sub.setName("show").setDescription("現在の設定を表示")
+    ),
 ];
 
 export const commandDataJson = commandData.map((command) => command.toJSON());

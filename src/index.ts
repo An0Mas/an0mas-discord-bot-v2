@@ -7,12 +7,15 @@ import { Events, GatewayIntentBits } from "discord.js";
 import { initDatabase } from "./db.js";
 import { loadHelpEntries } from "./commands/help.js";
 import { initializeScheduler } from "./scheduler.js";
+import { checkGuildPermission } from "./permissions.js";
 import {
   handleHelpCommand,
   handleBosyuCommand,
   handleBosyuBpsrCommand,
   handleRemindCommand,
   handleRemindListCommand,
+  handleAllowCommand,
+  handleConfigCommand,
 } from "./handlers/command-handlers.js";
 import {
   handleBosyuModalSubmit,
@@ -43,6 +46,24 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
+  // /allow, /config コマンドはGuild許可チェックをスキップ（オーナー専用コマンド）
+  const isOwnerOnlyCommand = interaction.isChatInputCommand() &&
+    (interaction.commandName === "allow" || interaction.commandName === "config");
+
+  // 1. Guild許可チェック（最優先、ただしオーナー専用コマンドはスキップ）
+  if (!isOwnerOnlyCommand) {
+    const guildCheck = checkGuildPermission(interaction);
+    if (!guildCheck.allowed) {
+      if (interaction.isRepliable()) {
+        await interaction.reply({
+          content: guildCheck.reason,
+          ephemeral: true,
+        });
+      }
+      return;
+    }
+  }
+
   // スラッシュコマンド処理
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === "help") {
@@ -67,6 +88,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (interaction.commandName === "remind-list") {
       await handleRemindListCommand(interaction);
+      return;
+    }
+
+    if (interaction.commandName === "allow") {
+      await handleAllowCommand(interaction);
+      return;
+    }
+
+    if (interaction.commandName === "config") {
+      await handleConfigCommand(interaction);
       return;
     }
   }

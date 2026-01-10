@@ -27,6 +27,12 @@ import {
 import { addReminder, getRemindersForUser } from "../db.js";
 import { scheduleReminder } from "../scheduler.js";
 
+// /allow コマンドハンドラをre-export
+export { handleAllowCommand } from "../commands/allow.js";
+
+// /config コマンドハンドラをre-export
+export { handleConfigCommand } from "../commands/config.js";
+
 /**
  * /help コマンドの処理
  */
