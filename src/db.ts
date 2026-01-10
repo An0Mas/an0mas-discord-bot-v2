@@ -50,6 +50,26 @@ export function initDatabase() {
   // インデックス作成
   database.prepare("CREATE INDEX IF NOT EXISTS idx_reminders_user_id ON reminders(user_id)").run();
   database.prepare("CREATE INDEX IF NOT EXISTS idx_reminders_notify_at ON reminders(notify_at)").run();
+
+  // コマンド別許可ユーザーテーブル
+  database.prepare(`
+    CREATE TABLE IF NOT EXISTS allowed_users (
+      guild_id   TEXT NOT NULL,
+      command    TEXT NOT NULL,
+      user_id    TEXT NOT NULL,
+      PRIMARY KEY (guild_id, command, user_id)
+    )
+  `).run();
+
+  // コマンド別許可ロールテーブル
+  database.prepare(`
+    CREATE TABLE IF NOT EXISTS allowed_roles (
+      guild_id   TEXT NOT NULL,
+      command    TEXT NOT NULL,
+      role_id    TEXT NOT NULL,
+      PRIMARY KEY (guild_id, command, role_id)
+    )
+  `).run();
 }
 
 // リマインダー型
@@ -165,4 +185,113 @@ export function getAllEnabledGuilds(): GuildConfig[] {
   return database.prepare(
     "SELECT * FROM guild_config WHERE enabled = 1"
   ).all() as GuildConfig[];
+}
+
+// ========================
+// コマンド別許可ユーザー/ロール関連
+// ========================
+
+// 許可ユーザーを追加
+export function addAllowedUser(guildId: string, command: string, userId: string): boolean {
+  const database = getDb();
+  try {
+    database.prepare(`
+      INSERT INTO allowed_users (guild_id, command, user_id)
+      VALUES (?, ?, ?)
+    `).run(guildId, command, userId);
+    return true;
+  } catch {
+    // 既に存在する場合はfalse
+    return false;
+  }
+}
+
+// 許可ユーザーを削除
+export function removeAllowedUser(guildId: string, command: string, userId: string): boolean {
+  const database = getDb();
+  const result = database.prepare(
+    "DELETE FROM allowed_users WHERE guild_id = ? AND command = ? AND user_id = ?"
+  ).run(guildId, command, userId);
+  return result.changes > 0;
+}
+
+// 許可ユーザー一覧を取得
+export function getAllowedUsers(guildId: string, command: string): string[] {
+  const database = getDb();
+  const rows = database.prepare(
+    "SELECT user_id FROM allowed_users WHERE guild_id = ? AND command = ?"
+  ).all(guildId, command) as { user_id: string }[];
+  return rows.map(r => r.user_id);
+}
+
+// 許可ロールを追加
+export function addAllowedRole(guildId: string, command: string, roleId: string): boolean {
+  const database = getDb();
+  try {
+    database.prepare(`
+      INSERT INTO allowed_roles (guild_id, command, role_id)
+      VALUES (?, ?, ?)
+    `).run(guildId, command, roleId);
+    return true;
+  } catch {
+    // 既に存在する場合はfalse
+    return false;
+  }
+}
+
+// 許可ロールを削除
+export function removeAllowedRole(guildId: string, command: string, roleId: string): boolean {
+  const database = getDb();
+  const result = database.prepare(
+    "DELETE FROM allowed_roles WHERE guild_id = ? AND command = ? AND role_id = ?"
+  ).run(guildId, command, roleId);
+  return result.changes > 0;
+}
+
+// 許可ロール一覧を取得
+export function getAllowedRoles(guildId: string, command: string): string[] {
+  const database = getDb();
+  const rows = database.prepare(
+    "SELECT role_id FROM allowed_roles WHERE guild_id = ? AND command = ?"
+  ).all(guildId, command) as { role_id: string }[];
+  return rows.map(r => r.role_id);
+}
+
+// ユーザーが特定コマンドの実行権限を持っているかチェック
+export function isUserAllowedForCommand(
+  guildId: string,
+  command: string,
+  userId: string,
+  userRoleIds: string[]
+): boolean {
+  const database = getDb();
+
+  // 許可ユーザーに含まれているかチェック
+  const userAllowed = database.prepare(
+    "SELECT 1 FROM allowed_users WHERE guild_id = ? AND command = ? AND user_id = ?"
+  ).get(guildId, command, userId);
+  if (userAllowed) return true;
+
+  // 許可ロールに含まれているかチェック
+  if (userRoleIds.length > 0) {
+    const placeholders = userRoleIds.map(() => '?').join(',');
+    const roleAllowed = database.prepare(
+      `SELECT 1 FROM allowed_roles WHERE guild_id = ? AND command = ? AND role_id IN (${placeholders})`
+    ).get(guildId, command, ...userRoleIds);
+    if (roleAllowed) return true;
+  }
+
+  return false;
+}
+
+// 許可設定が存在するかチェック（空の場合はEveryoneとして扱う）
+export function hasAnyPermissionSettings(guildId: string, command: string): boolean {
+  const database = getDb();
+  const userCount = database.prepare(
+    "SELECT COUNT(*) as count FROM allowed_users WHERE guild_id = ? AND command = ?"
+  ).get(guildId, command) as { count: number };
+  const roleCount = database.prepare(
+    "SELECT COUNT(*) as count FROM allowed_roles WHERE guild_id = ? AND command = ?"
+  ).get(guildId, command) as { count: number };
+  return userCount.count > 0 || roleCount.count > 0;
 }

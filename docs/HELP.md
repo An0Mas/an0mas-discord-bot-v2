@@ -1,4 +1,4 @@
-# HELP — Discord便利Bot v0.1
+# HELP — Discord便利Bot v0.2
 
 > このファイルは /help が表示する文言の正本。
 > 一覧の表示順はこのファイルの掲載順を優先する。
@@ -134,3 +134,59 @@ BPSR特化のロール別募集を作成します。タンク/アタッカー/�
 
 ### 例
 - `/remind-list`
+
+---
+
+## /allow
+### 概要
+Bot利用許可を管理します（オーナー専用）。
+
+### 使い方
+- `/allow guild add` — このサーバーを許可リストに追加
+- `/allow guild remove` — このサーバーを許可リストから削除
+- `/allow user add <command> <user>` — ユーザーにコマンド権限を付与
+- `/allow user remove <command> <user>` — ユーザーからコマンド権限を削除
+- `/allow role add <command> <role>` — ロールにコマンド権限を付与
+- `/allow role remove <command> <role>` — ロールからコマンド権限を削除
+
+### 権限
+- **Botオーナーのみ**実行可能です。
+
+### 動作
+- `guild add`：サーバーを許可リストに追加し、Bot機能を有効化
+- `guild remove`：サーバーを許可リストから削除し、Bot機能を無効化
+- `user/role add|remove`：特定コマンドのユーザー/ロール別許可を管理
+
+### 例
+- `/allow guild add`
+- `/allow user add bosyu @ユーザー`
+- `/allow role add bosyu @ロール`
+
+---
+
+## /config
+### 概要
+Bot設定を表示・管理します（オーナー専用）。
+
+### 使い方
+- `/config show` — 現在の設定を表示
+- `/config permissions` — 全コマンドの権限設定一覧を表示
+- `/config permissions command:<コマンド名>` — 特定コマンドの許可ユーザー/ロールを表示
+
+### 表示内容（show）
+- Botオーナー
+- 現在のサーバーの許可状態
+- 許可済みサーバー数
+
+### 表示内容（permissions）
+- コマンド別の許可ユーザー数/ロール数
+- 詳細指定時は許可ユーザー/ロールのリスト
+
+### 権限
+- **Botオーナーのみ**実行可能です。
+
+### 例
+- `/config show`
+- `/config permissions`
+- `/config permissions command:bosyu`
+

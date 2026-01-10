@@ -71,12 +71,71 @@ export const commandData = [
         .addSubcommand((sub) =>
           sub.setName("remove").setDescription("このサーバーを許可リストから削除")
         )
+    )
+    .addSubcommandGroup((group) =>
+      group
+        .setName("user")
+        .setDescription("ユーザー単位の許可を管理")
+        .addSubcommand((sub) =>
+          sub.setName("add")
+            .setDescription("ユーザーにコマンド権限を付与")
+            .addStringOption((opt) =>
+              opt.setName("command").setDescription("コマンド名").setRequired(true)
+            )
+            .addUserOption((opt) =>
+              opt.setName("user").setDescription("許可するユーザー").setRequired(true)
+            )
+        )
+        .addSubcommand((sub) =>
+          sub.setName("remove")
+            .setDescription("ユーザーからコマンド権限を削除")
+            .addStringOption((opt) =>
+              opt.setName("command").setDescription("コマンド名").setRequired(true)
+            )
+            .addUserOption((opt) =>
+              opt.setName("user").setDescription("削除するユーザー").setRequired(true)
+            )
+        )
+    )
+    .addSubcommandGroup((group) =>
+      group
+        .setName("role")
+        .setDescription("ロール単位の許可を管理")
+        .addSubcommand((sub) =>
+          sub.setName("add")
+            .setDescription("ロールにコマンド権限を付与")
+            .addStringOption((opt) =>
+              opt.setName("command").setDescription("コマンド名").setRequired(true)
+            )
+            .addRoleOption((opt) =>
+              opt.setName("role").setDescription("許可するロール").setRequired(true)
+            )
+        )
+        .addSubcommand((sub) =>
+          sub.setName("remove")
+            .setDescription("ロールからコマンド権限を削除")
+            .addStringOption((opt) =>
+              opt.setName("command").setDescription("コマンド名").setRequired(true)
+            )
+            .addRoleOption((opt) =>
+              opt.setName("role").setDescription("削除するロール").setRequired(true)
+            )
+        )
     ),
   new SlashCommandBuilder()
     .setName("config")
     .setDescription("Bot設定を表示・管理します（オーナー専用）")
     .addSubcommand((sub) =>
       sub.setName("show").setDescription("現在の設定を表示")
+    )
+    .addSubcommand((sub) =>
+      sub.setName("permissions")
+        .setDescription("コマンドの権限設定を表示")
+        .addStringOption((opt) =>
+          opt.setName("command")
+            .setDescription("コマンド名（省略時は全コマンドの概要）")
+            .setRequired(false)
+        )
     ),
 ];
 

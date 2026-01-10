@@ -74,9 +74,48 @@ CREATE TABLE IF NOT EXISTS guild_config (
 
 ---
 
+### 4. allowed_users
+コマンド別許可ユーザーテーブル — Restrictedコマンドの権限管理
+
+```sql
+CREATE TABLE IF NOT EXISTS allowed_users (
+  guild_id   TEXT NOT NULL,
+  command    TEXT NOT NULL,
+  user_id    TEXT NOT NULL,
+  PRIMARY KEY (guild_id, command, user_id)
+);
+```
+
+| カラム | 型 | 説明 |
+|--------|-----|------|
+| guild_id | TEXT | DiscordギルドID |
+| command | TEXT | コマンド名（例: bosyu） |
+| user_id | TEXT | 許可されたユーザーID |
+
+---
+
+### 5. allowed_roles
+コマンド別許可ロールテーブル — Restrictedコマンドの権限管理
+
+```sql
+CREATE TABLE IF NOT EXISTS allowed_roles (
+  guild_id   TEXT NOT NULL,
+  command    TEXT NOT NULL,
+  role_id    TEXT NOT NULL,
+  PRIMARY KEY (guild_id, command, role_id)
+);
+```
+
+| カラム | 型 | 説明 |
+|--------|-----|------|
+| guild_id | TEXT | DiscordギルドID |
+| command | TEXT | コマンド名（例: bosyu） |
+| role_id | TEXT | 許可されたロールID |
+
+---
+
 ## 使用ライブラリ
 - `better-sqlite3`
 
 ## ファイル
 - `src/db.ts` - DB初期化＋CRUD関数
-
