@@ -70,10 +70,10 @@
 
 ---
 
-## v0.2（Next / 追加予定だが時期未定）
-> 「やること」は明確だが、いつやるかは未定。
+## v0.2（実装済み ✅）
+> v0.1系の後に実装された機能群。
 
-### Must（予定）
+### 実装済み
 - `/bosyu-bpsr`（BPSR特化のロール別募集）
   - ロール別参加ボタン（🛡️タンク / ⚔️アタッカー / 💚ヒーラー）
   - ロール変更はボタン押し直しで自動切替
@@ -82,18 +82,18 @@
 - `/remind` + `/remind-list`（リマインダー）
   - 指定時刻にDMで通知
   - モーダルで入力（時刻/何分前/内容）
-  - 一覧表示＋番号ボタンで削除
+  - 一覧表示＋削除ボタン
   - SQLiteで永続化（Bot再起動後も維持）
-- コマンド可用性（Availability）の最小実装
-  - まずは「guildごとの enable/disable」だけ
-  - /help 詳細に「利用制限あり」の注記を出せるようにする（可能なら）
-- `/config`（最小）
-  - guildごとの設定（少なくとも Availability の ON/OFF を操作可能）
-  - 操作権限は管理者/管理ロールのみ（詳細はSPECで確定）
-
-### Nice to have（余裕があれば）
-- Availability を user/role まで拡張（allow/deny）
-- 設定の監査ログ（audit）を最小で入れる
+- コマンド可用性（Availability）
+  - guildごとの enable/disable
+  - ユーザー/ロール別許可
+- `/allow`（オーナー専用）
+  - guild add/remove
+  - user/role add/remove
+- `/config`（オーナー専用）
+  - show / permissions
+- Sapphireフレームワーク移行
+- エラーログと監視の整備
 
 ---
 

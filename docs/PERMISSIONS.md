@@ -78,8 +78,8 @@ CREATE TABLE allowed_roles (
 | `src/config.ts` | OWNER_ID取得、`isBotOwner()` |
 | `src/permissions.ts` | 権限チェック関数群 |
 | `src/db.ts` | DB操作（許可リストCRUD） |
-| `src/commands/allow.ts` | `/allow` コマンドハンドラ |
-| `src/commands/config.ts` | `/config` コマンドハンドラ |
+| `src/commands/AllowCommand.ts` | `/allow` コマンド（Sapphire） |
+| `src/commands/ConfigCommand.ts` | `/config` コマンド（Sapphire） |
 
 ---
 
