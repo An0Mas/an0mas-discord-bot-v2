@@ -18,6 +18,18 @@ BPSR（ゲーム）特化のロール別募集を作成します。
 - ロール変更はボタン押し直しで自動切替
 - 投稿者は自動参加せず、ボタンで参加
 
+### /remind
+指定時刻にDMでリマインダー通知を受け取れます。
+
+### /remind-list
+登録済みリマインダーの一覧表示・削除ができます。
+
+### /allow (オーナー専用)
+サーバー許可・ユーザー/ロール権限を管理します。
+
+### /config (オーナー専用)
+Bot設定・権限設定を確認します。
+
 ## セットアップ
 
 ### 1. 依存インストール
@@ -29,34 +41,46 @@ pnpm install
 `.env.example` をコピーして `.env` を作成し、以下を設定：
 - `DISCORD_TOKEN` - Botトークン
 - `CLIENT_ID` - アプリケーションID
-- `GUILD_ID` - 開発用サーバーID
+- `OWNER_ID` - BotオーナーのユーザーID
 
-### 3. コマンド登録
-```bash
-pnpm deploy
-```
-
-### 4. 起動
+### 3. 起動
 ```bash
 pnpm dev
 ```
 
+> **Note**: Sapphireがコマンドを自動登録するため、`pnpm deploy` は不要です。
+
 ## ディレクトリ構成
 ```
 src/
-├── index.ts                 # エントリーポイント（ルーティング）
-├── db.ts                    # DB初期化
-├── command-data.ts          # スラッシュコマンド定義
-├── deploy-commands.ts       # コマンド登録スクリプト
-├── commands/                # コマンドロジック
-│   ├── help.ts
-│   ├── bosyu.ts
-│   └── bosyu-bpsr.ts
-└── handlers/                # Interactionハンドラ
-    ├── button-handlers.ts   # ボタン処理
-    ├── modal-handlers.ts    # モーダル処理
-    └── command-handlers.ts  # スラッシュコマンド処理
+├── index.ts                 # エントリーポイント（SapphireClient初期化）
+├── db.ts                    # SQLite初期化
+├── config.ts                # 環境変数設定
+├── permissions.ts           # 権限チェック
+├── scheduler.ts             # リマインダースケジューラ
+├── commands/                # Sapphire Commandクラス（自動登録）
+│   ├── HelpCommand.ts
+│   ├── BosyuCommand.ts
+│   ├── BosyuBpsrCommand.ts
+│   ├── RemindCommand.ts
+│   ├── RemindListCommand.ts
+│   ├── AllowCommand.ts
+│   └── ConfigCommand.ts
+├── interaction-handlers/    # Sapphire InteractionHandler（ボタン・モーダル）
+│   └── ...
+└── lib/                     # 共有ユーティリティ
+    ├── help-utils.ts
+    ├── bosyu-utils.ts
+    ├── bosyu-bpsr-utils.ts
+    └── remind-utils.ts
 ```
 
 ## DB
 - `./data/dev.sqlite3` を利用（起動時に自動生成）
+- WALモード + busy_timeout=5000ms
+
+## 技術スタック
+- **フレームワーク**: Sapphire Framework
+- **Discord**: discord.js v14
+- **言語**: TypeScript (strict mode)
+- **DB**: SQLite (better-sqlite3)
