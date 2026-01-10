@@ -7,7 +7,7 @@ import {
     getHelpPageEntries,
     parseHelpCustomId,
     HelpEntry,
-} from "../commands/help.js";
+} from "../lib/help-utils.js";
 import {
     applyBosyuAction,
     buildBosyuEditModal,
@@ -15,7 +15,7 @@ import {
     buildBosyuEmbed,
     parseBosyuCustomId,
     parseBosyuEmbed,
-} from "../commands/bosyu.js";
+} from "../legacy-commands/bosyu.js";
 import {
     applyBosyuBpsrAction,
     buildBosyuBpsrEditModal,
@@ -23,11 +23,11 @@ import {
     buildBosyuBpsrEmbed,
     parseBosyuBpsrCustomId,
     parseBosyuBpsrEmbed,
-} from "../commands/bosyu-bpsr.js";
+} from "../legacy-commands/bosyu-bpsr.js";
 import {
     parseRemindListCustomId,
     buildRemindListEmbed,
-} from "../commands/remind.js";
+} from "../legacy-commands/remind.js";
 import { deleteReminderForUser, getRemindersForUser } from "../db.js";
 import { cancelReminderTimer } from "../scheduler.js";
 

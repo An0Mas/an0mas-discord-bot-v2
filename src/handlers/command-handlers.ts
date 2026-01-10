@@ -4,34 +4,34 @@ import {
     getHelpPageCount,
     getHelpPageEntries,
     HelpEntry,
-} from "../commands/help.js";
+} from "../lib/help-utils.js";
 import {
     buildBosyuModal,
     buildBosyuComponents,
     buildBosyuEmbed,
     createBosyuState,
     decideBosyuCommandInput,
-} from "../commands/bosyu.js";
+} from "../legacy-commands/bosyu.js";
 import {
     buildBosyuBpsrModal,
     buildBosyuBpsrComponents,
     buildBosyuBpsrEmbed,
     createBosyuBpsrState,
     decideBosyuBpsrCommandInput,
-} from "../commands/bosyu-bpsr.js";
+} from "../legacy-commands/bosyu-bpsr.js";
 import {
     buildRemindModal,
     buildRemindListEmbed,
     calculateNotifyAt,
-} from "../commands/remind.js";
+} from "../legacy-commands/remind.js";
 import { addReminder, getRemindersForUser } from "../db.js";
 import { scheduleReminder } from "../scheduler.js";
 
 // /allow コマンドハンドラをre-export
-export { handleAllowCommand } from "../commands/allow.js";
+export { handleAllowCommand } from "../legacy-commands/allow.js";
 
 // /config コマンドハンドラをre-export
-export { handleConfigCommand } from "../commands/config.js";
+export { handleConfigCommand } from "../legacy-commands/config.js";
 
 /**
  * /help コマンドの処理

@@ -6,7 +6,7 @@ import {
     parseBosyuModalTarget,
     parseBosyuModalSubmission,
     parseBosyuEmbed,
-} from "../commands/bosyu.js";
+} from "../legacy-commands/bosyu.js";
 import {
     buildBosyuBpsrComponents,
     buildBosyuBpsrEmbed,
@@ -14,12 +14,12 @@ import {
     parseBosyuBpsrModalTarget,
     parseBosyuBpsrModalSubmission,
     parseBosyuBpsrEmbed,
-} from "../commands/bosyu-bpsr.js";
+} from "../legacy-commands/bosyu-bpsr.js";
 import {
     parseRemindModalTarget,
     parseRemindModalSubmission,
     calculateNotifyAt,
-} from "../commands/remind.js";
+} from "../legacy-commands/remind.js";
 import { addReminder } from "../db.js";
 import { scheduleReminder } from "../scheduler.js";
 

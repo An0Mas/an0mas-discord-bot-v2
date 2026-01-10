@@ -5,11 +5,9 @@ import { SapphireClient } from "@sapphire/framework";
 import { Events, GatewayIntentBits } from "discord.js";
 
 import { initDatabase } from "./db.js";
-import { loadHelpEntries } from "./commands/help.js";
 import { initializeScheduler } from "./scheduler.js";
 import { checkGuildPermission } from "./permissions.js";
 import {
-  handleHelpCommand,
   handleBosyuCommand,
   handleBosyuBpsrCommand,
   handleRemindCommand,
@@ -23,20 +21,26 @@ import {
   handleRemindModalSubmit,
 } from "./handlers/modal-handlers.js";
 import {
-  handleHelpButton,
   handleBosyuButton,
   handleBosyuBpsrButton,
   handleRemindListButton,
 } from "./handlers/button-handlers.js";
 
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const token = process.env.DISCORD_TOKEN;
 if (!token) throw new Error("DISCORD_TOKEN を .env に設定してね");
 
 initDatabase();
-const helpEntries = loadHelpEntries();
 
 const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds],
+  loadMessageCommandListeners: true,
+  baseUserDirectory: __dirname,
 });
 
 client.once(Events.ClientReady, (readyClient) => {
@@ -46,12 +50,17 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  // /allow, /config コマンドはGuild許可チェックをスキップ（オーナー専用コマンド）
+  // /allow, /config, /help コマンドはGuild許可チェックをスキップ
+  // /help はSapphireが処理するが、Preconditionで対応予定
   const isOwnerOnlyCommand = interaction.isChatInputCommand() &&
     (interaction.commandName === "allow" || interaction.commandName === "config");
 
-  // 1. Guild許可チェック（最優先、ただしオーナー専用コマンドはスキップ）
-  if (!isOwnerOnlyCommand) {
+  // Sapphire管理のコマンド（/help）はSapphireが処理するためスキップ
+  const isSapphireCommand = interaction.isChatInputCommand() &&
+    interaction.commandName === "help";
+
+  // 1. Guild許可チェック（最優先、ただしオーナー専用コマンド・Sapphireコマンドはスキップ）
+  if (!isOwnerOnlyCommand && !isSapphireCommand) {
     const guildCheck = checkGuildPermission(interaction);
     if (!guildCheck.allowed) {
       if (interaction.isRepliable()) {
@@ -64,12 +73,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
   }
 
-  // スラッシュコマンド処理
+  // スラッシュコマンド処理（/help以外）
   if (interaction.isChatInputCommand()) {
-    if (interaction.commandName === "help") {
-      await handleHelpCommand(interaction, helpEntries);
-      return;
-    }
+    // /help はSapphireが自動処理するためここでは処理しない
 
     if (interaction.commandName === "bosyu") {
       await handleBosyuCommand(interaction);
@@ -120,12 +126,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
   }
 
-  // ボタン処理
+  // ボタン処理（help以外 — helpはSapphire InteractionHandlerが処理）
   if (interaction.isButton()) {
     const customId = interaction.customId;
 
+    // help: はSapphireが処理するためスキップ
     if (customId.startsWith("help:")) {
-      await handleHelpButton(interaction, customId, helpEntries);
       return;
     }
 
@@ -147,3 +153,4 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.login(token);
+
