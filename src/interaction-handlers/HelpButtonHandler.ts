@@ -3,9 +3,10 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
-import type { ButtonInteraction } from "discord.js";
+import type { ButtonInteraction, GuildMember } from "discord.js";
 import {
     loadHelpEntries,
+    filterEntriesByPermission,
     getHelpPageCount,
     getHelpPageEntries,
     getHelpEntryByIndex,
@@ -59,7 +60,13 @@ export class HelpButtonHandler extends InteractionHandler {
         interaction: ButtonInteraction,
         parsed: InteractionHandler.ParseResult<this>
     ) {
-        const entries = getHelpEntries();
+        const allEntries = getHelpEntries();
+        const userId = interaction.user.id;
+        const guildId = interaction.guildId;
+        const member = interaction.member as GuildMember | null;
+
+        // 権限でフィルタリング
+        const entries = filterEntriesByPermission(allEntries, userId, guildId, member);
         const totalPages = getHelpPageCount(entries.length);
 
         if (parsed.type === "list") {

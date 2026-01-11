@@ -3,8 +3,10 @@
  */
 
 import { Command } from "@sapphire/framework";
+import type { GuildMember } from "discord.js";
 import {
     loadHelpEntries,
+    filterEntriesByPermission,
     getHelpPageCount,
     getHelpPageEntries,
     buildHelpList,
@@ -39,10 +41,16 @@ export class HelpCommand extends Command {
     }
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-        const entries = getHelpEntries();
+        const allEntries = getHelpEntries();
+        const userId = interaction.user.id;
+        const guildId = interaction.guildId;
+        const member = interaction.member as GuildMember | null;
+
+        // 権限でフィルタリング
+        const entries = filterEntriesByPermission(allEntries, userId, guildId, member);
+
         const totalPages = getHelpPageCount(entries.length);
         const page = 1;
-        const userId = interaction.user.id;
 
         const pageEntries = getHelpPageEntries(entries, page);
         const { embed, components } = buildHelpList({

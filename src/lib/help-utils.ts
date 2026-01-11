@@ -10,7 +10,11 @@ import {
     ButtonBuilder,
     ButtonStyle,
     EmbedBuilder,
+    type GuildMember,
 } from "discord.js";
+import { getCommandDefinition } from "../command-config.js";
+import { isBotOwner } from "../config.js";
+import { isUserAllowedForCommand, hasAnyPermissionSettings } from "../db.js";
 
 export type HelpEntry = {
     name: string;
@@ -61,6 +65,59 @@ export function loadHelpEntries(): HelpEntry[] {
     }
 
     return entries;
+}
+
+/**
+ * ユーザーの権限に基づいてヘルプエントリをフィルタリング
+ * - owner-only: Botオーナーのみ表示
+ * - restricted: オーナー or 許可ユーザー/ロールに表示
+ * - public: 全員に表示
+ */
+export function filterEntriesByPermission(
+    entries: HelpEntry[],
+    userId: string,
+    guildId: string | null,
+    member: GuildMember | null
+): HelpEntry[] {
+    const isOwner = isBotOwner(userId);
+
+    // オーナーには全て表示
+    if (isOwner) {
+        return entries;
+    }
+
+    return entries.filter((entry) => {
+        const cmdName = entry.name.replace(/^\//, ""); // 先頭の / を除去
+        const cmdDef = getCommandDefinition(cmdName);
+
+        if (!cmdDef) {
+            // 定義がないコマンドはとりあえず表示
+            return true;
+        }
+
+        switch (cmdDef.permissionType) {
+            case "owner-only":
+                // オーナー専用は非表示
+                return false;
+
+            case "restricted":
+                // 許可されていれば表示
+                if (!guildId) return false;
+
+                // 許可設定が存在しない場合は非表示（使えないので）
+                if (!hasAnyPermissionSettings(guildId, cmdName)) {
+                    return false;
+                }
+
+                const userRoleIds = member?.roles.cache.map(r => r.id) ?? [];
+                return isUserAllowedForCommand(guildId, cmdName, userId, userRoleIds);
+
+            case "public":
+            default:
+                // 全員OK
+                return true;
+        }
+    });
 }
 
 export function getHelpPageCount(totalEntries: number) {
