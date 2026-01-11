@@ -15,7 +15,7 @@ process.on("unhandledRejection", (reason, promise) => {
   // 継続可能なエラーとして扱う（クラッシュさせない）
 });
 import { SapphireClient } from "@sapphire/framework";
-import { Events, GatewayIntentBits } from "discord.js";
+import { Events, GatewayIntentBits, MessageFlags } from "discord.js";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
@@ -62,7 +62,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
       await interaction.reply({
         content: guildCheck.reason,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     return;

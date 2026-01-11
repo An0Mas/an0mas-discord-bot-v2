@@ -3,7 +3,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
-import type { ModalSubmitInteraction } from "discord.js";
+import { type ModalSubmitInteraction, MessageFlags } from "discord.js";
 import {
     parseRemindModalTarget,
     parseRemindModalSubmission,
@@ -49,7 +49,7 @@ export class RemindModalHandler extends InteractionHandler {
         if (!parsed.ok) {
             await interaction.reply({
                 content: parsed.message,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -66,7 +66,7 @@ export class RemindModalHandler extends InteractionHandler {
         if (notifyAt <= now) {
             await interaction.reply({
                 content: "通知時刻が過去です。未来の時刻を指定してください。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -83,7 +83,7 @@ export class RemindModalHandler extends InteractionHandler {
 
         await interaction.reply({
             content: `⏰ リマインダーを登録しました！\n通知時刻: **${timeStr}**\n内容: ${parsed.content}`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 }

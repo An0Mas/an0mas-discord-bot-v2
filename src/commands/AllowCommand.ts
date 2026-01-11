@@ -4,6 +4,7 @@
  */
 
 import { Command } from "@sapphire/framework";
+import { MessageFlags } from "discord.js";
 import { checkOwnerOnly, PermissionResult } from "../permissions.js";
 import {
     enableGuild,
@@ -108,7 +109,7 @@ export class AllowCommand extends Command {
         if (!ownerCheck.allowed) {
             await interaction.reply({
                 content: ownerCheck.reason,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -151,7 +152,7 @@ export class AllowCommand extends Command {
 
         await interaction.reply({
             content: "❌ 不明なサブコマンドです。",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -160,7 +161,7 @@ export class AllowCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -168,7 +169,7 @@ export class AllowCommand extends Command {
         if (isGuildEnabled(guildId)) {
             await interaction.reply({
                 content: "ℹ️ このサーバーは既に許可リストに登録されています。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -176,7 +177,7 @@ export class AllowCommand extends Command {
         enableGuild(guildId);
         await interaction.reply({
             content: `✅ サーバー「${interaction.guild?.name}」を許可リストに追加しました。`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -185,7 +186,7 @@ export class AllowCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -193,7 +194,7 @@ export class AllowCommand extends Command {
         if (!isGuildEnabled(guildId)) {
             await interaction.reply({
                 content: "ℹ️ このサーバーは許可リストに登録されていません。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -201,7 +202,7 @@ export class AllowCommand extends Command {
         disableGuild(guildId);
         await interaction.reply({
             content: `✅ サーバー「${interaction.guild?.name}」を許可リストから削除しました。`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -210,7 +211,7 @@ export class AllowCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -222,12 +223,12 @@ export class AllowCommand extends Command {
         if (success) {
             await interaction.reply({
                 content: `✅ <@${user.id}> に \`/${command}\` の権限を付与しました。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else {
             await interaction.reply({
                 content: `ℹ️ <@${user.id}> は既に \`/${command}\` の権限を持っています。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
     }
@@ -237,7 +238,7 @@ export class AllowCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -249,12 +250,12 @@ export class AllowCommand extends Command {
         if (success) {
             await interaction.reply({
                 content: `✅ <@${user.id}> から \`/${command}\` の権限を削除しました。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else {
             await interaction.reply({
                 content: `ℹ️ <@${user.id}> は \`/${command}\` の権限を持っていませんでした。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
     }
@@ -264,7 +265,7 @@ export class AllowCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -276,12 +277,12 @@ export class AllowCommand extends Command {
         if (success) {
             await interaction.reply({
                 content: `✅ <@&${role.id}> に \`/${command}\` の権限を付与しました。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else {
             await interaction.reply({
                 content: `ℹ️ <@&${role.id}> は既に \`/${command}\` の権限を持っています。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
     }
@@ -291,7 +292,7 @@ export class AllowCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -303,12 +304,12 @@ export class AllowCommand extends Command {
         if (success) {
             await interaction.reply({
                 content: `✅ <@&${role.id}> から \`/${command}\` の権限を削除しました。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else {
             await interaction.reply({
                 content: `ℹ️ <@&${role.id}> は \`/${command}\` の権限を持っていませんでした。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
     }

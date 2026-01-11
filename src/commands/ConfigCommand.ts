@@ -4,7 +4,7 @@
  */
 
 import { Command } from "@sapphire/framework";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 import { checkOwnerOnly, PermissionResult } from "../permissions.js";
 import { getGuildConfig, getAllEnabledGuilds, getAllowedUsers, getAllowedRoles } from "../db.js";
 import { getOwnerId } from "../config.js";
@@ -46,7 +46,7 @@ export class ConfigCommand extends Command {
         if (!ownerCheck.allowed) {
             await interaction.reply({
                 content: ownerCheck.reason,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -65,7 +65,7 @@ export class ConfigCommand extends Command {
 
         await interaction.reply({
             content: "❌ 不明なサブコマンドです。",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -100,7 +100,7 @@ export class ConfigCommand extends Command {
 
         await interaction.reply({
             embeds: [embed],
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -109,7 +109,7 @@ export class ConfigCommand extends Command {
         if (!guildId) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -160,7 +160,7 @@ export class ConfigCommand extends Command {
 
             await interaction.reply({
                 embeds: [embed],
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } else {
             // 全コマンドの概要表示（中央設定から動的に取得）
@@ -197,7 +197,7 @@ export class ConfigCommand extends Command {
 
             await interaction.reply({
                 embeds: [embed],
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
     }

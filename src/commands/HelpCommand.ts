@@ -3,7 +3,7 @@
  */
 
 import { Command } from "@sapphire/framework";
-import type { GuildMember } from "discord.js";
+import { type GuildMember, MessageFlags } from "discord.js";
 import {
     loadHelpEntries,
     filterEntriesByPermission,
@@ -63,7 +63,7 @@ export class HelpCommand extends Command {
         await interaction.reply({
             embeds: [embed],
             components,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 }

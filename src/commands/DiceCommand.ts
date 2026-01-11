@@ -3,6 +3,7 @@
  */
 
 import { Command } from "@sapphire/framework";
+import { MessageFlags } from "discord.js";
 
 export class DiceCommand extends Command {
     public constructor(context: Command.LoaderContext, options: Command.Options) {
@@ -36,7 +37,7 @@ export class DiceCommand extends Command {
         if (result.error) {
             await interaction.reply({
                 content: result.error,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }

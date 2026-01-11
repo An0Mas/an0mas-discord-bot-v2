@@ -3,6 +3,7 @@
  */
 
 import { Command } from "@sapphire/framework";
+import { MessageFlags } from "discord.js";
 import {
     buildBosyuModal,
     buildBosyuComponents,
@@ -60,7 +61,7 @@ export class BosyuCommand extends Command {
         if (decision.type === "error") {
             await interaction.reply({
                 content: decision.message,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }

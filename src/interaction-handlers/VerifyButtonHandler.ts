@@ -4,7 +4,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
-import type { ButtonInteraction, GuildMember } from "discord.js";
+import { type ButtonInteraction, type GuildMember, MessageFlags } from "discord.js";
 import { getVerifySetting, deleteVerifySetting, isUserAllowedForCommand, hasAnyPermissionSettings } from "../db.js";
 import { isBotOwner } from "../config.js";
 import {
@@ -59,7 +59,7 @@ export class VerifyButtonHandler extends InteractionHandler {
         if (!setting) {
             await interaction.reply({
                 content: "❌ この認証は無効になっています。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -76,7 +76,7 @@ export class VerifyButtonHandler extends InteractionHandler {
         if (!hasPermission) {
             await interaction.reply({
                 content: "🚫 この操作は認証の作成者または許可されたユーザーのみ実行できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -98,7 +98,7 @@ export class VerifyButtonHandler extends InteractionHandler {
             deleteVerifySetting(messageId);
             await interaction.reply({
                 content: "✅ 認証ボタンを削除しました。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }

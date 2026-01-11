@@ -3,6 +3,7 @@
  */
 
 import { Command } from "@sapphire/framework";
+import { MessageFlags } from "discord.js";
 import { buildRemindListEmbed } from "../lib/remind-utils.js";
 import { getRemindersForUser } from "../db.js";
 
@@ -30,7 +31,7 @@ export class RemindListCommand extends Command {
         await interaction.reply({
             embeds: [embed],
             components,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 }

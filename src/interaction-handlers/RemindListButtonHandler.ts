@@ -3,7 +3,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
-import type { ButtonInteraction } from "discord.js";
+import { type ButtonInteraction, MessageFlags } from "discord.js";
 import {
     parseRemindListCustomId,
     buildRemindListEmbed,
@@ -52,7 +52,7 @@ export class RemindListButtonHandler extends InteractionHandler {
         if (!deleted) {
             await interaction.reply({
                 content: "リマインダーが見つかりませんでした。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }

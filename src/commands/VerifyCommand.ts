@@ -12,7 +12,7 @@ import {
 } from "../db.js";
 import { isBotOwner } from "../config.js";
 import { buildVerifyEmbed, buildVerifyComponents } from "../lib/verify-utils.js";
-import type { GuildMember } from "discord.js";
+import { type GuildMember, MessageFlags } from "discord.js";
 
 export class VerifyCommand extends Command {
     public constructor(context: Command.LoaderContext, options: Command.Options) {
@@ -49,7 +49,7 @@ export class VerifyCommand extends Command {
         if (!guildCheck.allowed) {
             await interaction.reply({
                 content: guildCheck.reason,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -58,7 +58,7 @@ export class VerifyCommand extends Command {
         if (!interaction.guildId || !interaction.guild) {
             await interaction.reply({
                 content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -68,7 +68,7 @@ export class VerifyCommand extends Command {
         if (!hasPermission) {
             await interaction.reply({
                 content: "🚫 このコマンドを実行する権限がありません。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -106,7 +106,7 @@ export class VerifyCommand extends Command {
         if (!botMember) {
             await interaction.reply({
                 content: "❌ BOTのメンバー情報を取得できませんでした。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -115,7 +115,7 @@ export class VerifyCommand extends Command {
         if (targetRole && botMember.roles.highest.position <= targetRole.position) {
             await interaction.reply({
                 content: `❌ BOTのロール位置が <@&${role.id}> より低いため、このロールを付与できません。`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }

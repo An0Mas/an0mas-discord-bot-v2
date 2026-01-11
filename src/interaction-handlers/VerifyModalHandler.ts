@@ -4,7 +4,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
-import type { ModalSubmitInteraction, GuildMember } from "discord.js";
+import { type ModalSubmitInteraction, type GuildMember, MessageFlags } from "discord.js";
 import { getVerifySetting, updateVerifySetting } from "../db.js";
 import {
     parseVerifyModalId,
@@ -52,7 +52,7 @@ export class VerifyModalHandler extends InteractionHandler {
         if (!setting) {
             await interaction.reply({
                 content: "❌ この認証は無効になっています。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -81,7 +81,7 @@ export class VerifyModalHandler extends InteractionHandler {
         if (!verifyKeyword(input, setting.keyword)) {
             await interaction.reply({
                 content: "❌ 合言葉が違います。もう一度お試しください。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -91,7 +91,7 @@ export class VerifyModalHandler extends InteractionHandler {
         if (!member || !member.roles) {
             await interaction.reply({
                 content: "❌ メンバー情報を取得できませんでした。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -101,7 +101,7 @@ export class VerifyModalHandler extends InteractionHandler {
             if (member.roles.cache.has(setting.role_id)) {
                 await interaction.reply({
                     content: "ℹ️ 既に認証済みです。",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
                 return;
             }
@@ -110,7 +110,7 @@ export class VerifyModalHandler extends InteractionHandler {
             await member.roles.add(setting.role_id);
             await interaction.reply({
                 content: "✅ 認証が完了しました！ロールが付与されました。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         } catch (error: any) {
             console.error("Failed to add role:", error);
@@ -120,13 +120,13 @@ export class VerifyModalHandler extends InteractionHandler {
                 // Missing Permissions - ロール位置の問題
                 await interaction.reply({
                     content: `❌ BOTのロール位置が <@&${setting.role_id}> より低いため、このロールを付与できません。`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             } else {
                 // その他の権限エラー
                 await interaction.reply({
                     content: "❌ ロールの付与に失敗しました。BOTの権限を確認してください。",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
         }
@@ -152,7 +152,7 @@ export class VerifyModalHandler extends InteractionHandler {
         if (!updatedSetting) {
             await interaction.reply({
                 content: "❌ 設定の更新中にエラーが発生しました。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -171,7 +171,7 @@ export class VerifyModalHandler extends InteractionHandler {
 
         await interaction.reply({
             content: "✅ 認証設定を更新しました。",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 }

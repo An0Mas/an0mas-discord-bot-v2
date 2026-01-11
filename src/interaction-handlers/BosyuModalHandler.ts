@@ -3,7 +3,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
-import type { ModalSubmitInteraction } from "discord.js";
+import { type ModalSubmitInteraction, MessageFlags } from "discord.js";
 import {
     buildBosyuComponents,
     buildBosyuEmbed,
@@ -52,7 +52,7 @@ export class BosyuModalHandler extends InteractionHandler {
         if (!parsed.ok) {
             await interaction.reply({
                 content: parsed.message,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -82,7 +82,7 @@ export class BosyuModalHandler extends InteractionHandler {
         if (!interaction.channel || !interaction.channel.isTextBased()) {
             await interaction.reply({
                 content: "編集対象のメッセージを取得できませんでした。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -93,7 +93,7 @@ export class BosyuModalHandler extends InteractionHandler {
         if (!message) {
             await interaction.reply({
                 content: "編集対象のメッセージが見つかりませんでした。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -103,7 +103,7 @@ export class BosyuModalHandler extends InteractionHandler {
         if (!currentState) {
             await interaction.reply({
                 content: "募集データを読み取れませんでした。",
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
             return;
         }
@@ -123,7 +123,7 @@ export class BosyuModalHandler extends InteractionHandler {
         });
         await interaction.reply({
             content: "募集内容を更新しました。",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 }
