@@ -50,6 +50,25 @@ pnpm dev
 
 > **Note**: Sapphireがコマンドを自動登録するため、`pnpm deploy` は不要です。
 
+## Bot権限設定（OAuth2 URL Generator）
+
+Discord Developer Portal でBot招待URLを生成する際に必要な設定です。
+
+### 必要なScopes
+- `bot`
+- `applications.commands`
+
+### 必要なBot Permissions
+
+| カテゴリ | 権限 | 必須 |
+|----------|------|:----:|
+| General | View Channels | ✅ |
+| Text | Send Messages | ✅ |
+| Text | Embed Links | ✅ |
+| Text | Read Message History | ✅ |
+| Text | Use Slash Commands | ✅ |
+| Text | Add Reactions | - |
+
 ## ディレクトリ構成
 ```
 src/
