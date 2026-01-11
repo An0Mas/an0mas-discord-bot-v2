@@ -112,12 +112,23 @@ export class VerifyModalHandler extends InteractionHandler {
                 content: "✅ 認証が完了しました！ロールが付与されました。",
                 ephemeral: true,
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to add role:", error);
-            await interaction.reply({
-                content: "❌ ロールの付与に失敗しました。BOTの権限を確認してください。",
-                ephemeral: true,
-            });
+
+            // エラーコードに応じてメッセージを出し分け
+            if (error?.code === 50013) {
+                // Missing Permissions - ロール位置の問題
+                await interaction.reply({
+                    content: `❌ BOTのロール位置が <@&${setting.role_id}> より低いため、このロールを付与できません。`,
+                    ephemeral: true,
+                });
+            } else {
+                // その他の権限エラー
+                await interaction.reply({
+                    content: "❌ ロールの付与に失敗しました。BOTの権限を確認してください。",
+                    ephemeral: true,
+                });
+            }
         }
     }
 
