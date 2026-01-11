@@ -119,3 +119,39 @@ CREATE TABLE IF NOT EXISTS allowed_roles (
 
 ## ファイル
 - `src/db.ts` - DB初期化＋CRUD関数
+
+---
+
+### 6. verify_settings
+認証設定テーブル — 合言葉認証システム
+
+```sql
+CREATE TABLE IF NOT EXISTS verify_settings (
+  message_id   TEXT PRIMARY KEY,
+  channel_id   TEXT NOT NULL,
+  guild_id     TEXT NOT NULL,
+  keyword      TEXT NOT NULL,
+  role_id      TEXT NOT NULL,
+  owner_id     TEXT NOT NULL,
+  title        TEXT,
+  description  TEXT,
+  created_at   INTEGER NOT NULL
+);
+```
+
+| カラム | 型 | 説明 |
+|--------|-----|------|
+| message_id | TEXT | 認証メッセージID（PK） |
+| channel_id | TEXT | チャンネルID |
+| guild_id | TEXT | DiscordギルドID |
+| keyword | TEXT | 正解の合言葉 |
+| role_id | TEXT | 付与するロールID |
+| owner_id | TEXT | 作成者ID |
+| title | TEXT | 埋め込みタイトル（任意） |
+| description | TEXT | 埋め込み説明文（任意） |
+| created_at | INTEGER | 作成時刻（Unix timestamp） |
+
+#### インデックス
+```sql
+CREATE INDEX IF NOT EXISTS idx_verify_settings_guild ON verify_settings(guild_id);
+```

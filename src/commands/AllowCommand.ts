@@ -14,6 +14,7 @@ import {
     addAllowedRole,
     removeAllowedRole,
 } from "../db.js";
+import { getCommandChoices } from "../command-config.js";
 
 export class AllowCommand extends Command {
     public constructor(context: Command.LoaderContext, options: Command.Options) {
@@ -50,6 +51,7 @@ export class AllowCommand extends Command {
                                 .setDescription("ユーザーにコマンド権限を付与")
                                 .addStringOption((opt) =>
                                     opt.setName("command").setDescription("コマンド名").setRequired(true)
+                                        .addChoices(...getCommandChoices())
                                 )
                                 .addUserOption((opt) =>
                                     opt.setName("user").setDescription("ユーザー").setRequired(true)
@@ -61,6 +63,7 @@ export class AllowCommand extends Command {
                                 .setDescription("ユーザーからコマンド権限を削除")
                                 .addStringOption((opt) =>
                                     opt.setName("command").setDescription("コマンド名").setRequired(true)
+                                        .addChoices(...getCommandChoices())
                                 )
                                 .addUserOption((opt) =>
                                     opt.setName("user").setDescription("ユーザー").setRequired(true)
@@ -77,6 +80,7 @@ export class AllowCommand extends Command {
                                 .setDescription("ロールにコマンド権限を付与")
                                 .addStringOption((opt) =>
                                     opt.setName("command").setDescription("コマンド名").setRequired(true)
+                                        .addChoices(...getCommandChoices())
                                 )
                                 .addRoleOption((opt) =>
                                     opt.setName("role").setDescription("ロール").setRequired(true)
@@ -88,6 +92,7 @@ export class AllowCommand extends Command {
                                 .setDescription("ロールからコマンド権限を削除")
                                 .addStringOption((opt) =>
                                     opt.setName("command").setDescription("コマンド名").setRequired(true)
+                                        .addChoices(...getCommandChoices())
                                 )
                                 .addRoleOption((opt) =>
                                     opt.setName("role").setDescription("ロール").setRequired(true)

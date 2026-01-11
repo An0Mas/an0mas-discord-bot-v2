@@ -71,6 +71,24 @@ export function initDatabase() {
       PRIMARY KEY (guild_id, command, role_id)
     )
   `).run();
+
+  // 認証設定テーブル
+  database.prepare(`
+    CREATE TABLE IF NOT EXISTS verify_settings (
+      message_id   TEXT PRIMARY KEY,
+      channel_id   TEXT NOT NULL,
+      guild_id     TEXT NOT NULL,
+      keyword      TEXT NOT NULL,
+      role_id      TEXT NOT NULL,
+      owner_id     TEXT NOT NULL,
+      title        TEXT,
+      description  TEXT,
+      created_at   INTEGER NOT NULL
+    )
+  `).run();
+
+  // インデックス作成
+  database.prepare("CREATE INDEX IF NOT EXISTS idx_verify_settings_guild ON verify_settings(guild_id)").run();
 }
 
 // リマインダー型
@@ -295,4 +313,95 @@ export function hasAnyPermissionSettings(guildId: string, command: string): bool
     "SELECT COUNT(*) as count FROM allowed_roles WHERE guild_id = ? AND command = ?"
   ).get(guildId, command) as { count: number };
   return userCount.count > 0 || roleCount.count > 0;
+}
+
+// ========================
+// 認証設定関連
+// ========================
+
+// VerifySetting型
+export type VerifySetting = {
+  message_id: string;
+  channel_id: string;
+  guild_id: string;
+  keyword: string;
+  role_id: string;
+  owner_id: string;
+  title: string | null;
+  description: string | null;
+  created_at: number;
+};
+
+// 認証設定を保存
+export function saveVerifySetting(setting: Omit<VerifySetting, 'created_at'>): VerifySetting {
+  const database = getDb();
+  const now = Math.floor(Date.now() / 1000);
+  database.prepare(`
+    INSERT INTO verify_settings (message_id, channel_id, guild_id, keyword, role_id, owner_id, title, description, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    setting.message_id,
+    setting.channel_id,
+    setting.guild_id,
+    setting.keyword,
+    setting.role_id,
+    setting.owner_id,
+    setting.title,
+    setting.description,
+    now
+  );
+  return { ...setting, created_at: now };
+}
+
+// 認証設定を取得
+export function getVerifySetting(messageId: string): VerifySetting | null {
+  const database = getDb();
+  const row = database.prepare(
+    "SELECT * FROM verify_settings WHERE message_id = ?"
+  ).get(messageId) as VerifySetting | undefined;
+  return row ?? null;
+}
+
+// 認証設定を更新
+export function updateVerifySetting(
+  messageId: string,
+  updates: Partial<Pick<VerifySetting, 'keyword' | 'role_id' | 'title' | 'description'>>
+): boolean {
+  const database = getDb();
+  const sets: string[] = [];
+  const values: (string | null)[] = [];
+
+  if (updates.keyword !== undefined) {
+    sets.push("keyword = ?");
+    values.push(updates.keyword);
+  }
+  if (updates.role_id !== undefined) {
+    sets.push("role_id = ?");
+    values.push(updates.role_id);
+  }
+  if (updates.title !== undefined) {
+    sets.push("title = ?");
+    values.push(updates.title);
+  }
+  if (updates.description !== undefined) {
+    sets.push("description = ?");
+    values.push(updates.description);
+  }
+
+  if (sets.length === 0) return false;
+
+  values.push(messageId);
+  const result = database.prepare(
+    `UPDATE verify_settings SET ${sets.join(", ")} WHERE message_id = ?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+// 認証設定を削除
+export function deleteVerifySetting(messageId: string): boolean {
+  const database = getDb();
+  const result = database.prepare(
+    "DELETE FROM verify_settings WHERE message_id = ?"
+  ).run(messageId);
+  return result.changes > 0;
 }

@@ -118,6 +118,8 @@ export class ConfigCommand extends Command {
 
         if (commandName) {
             // 特定コマンドの詳細表示
+            const { isOwnerOnlyCommand, isRestrictedCommand } = await import("../command-config.js");
+
             const allowedUsers = getAllowedUsers(guildId, commandName);
             const allowedRoles = getAllowedRoles(guildId, commandName);
 
@@ -127,6 +129,16 @@ export class ConfigCommand extends Command {
             const roleList = allowedRoles.length > 0
                 ? allowedRoles.map(id => `<@&${id}>`).join("\n")
                 : "（なし）";
+
+            // 権限タイプに応じたフッターメッセージ
+            let footerText: string;
+            if (isOwnerOnlyCommand(commandName)) {
+                footerText = "このコマンドはオーナーのみ使用可能です";
+            } else if (isRestrictedCommand(commandName)) {
+                footerText = "設定がない場合、オーナーのみ使用可能です";
+            } else {
+                footerText = "設定がない場合、全員が使用可能です";
+            }
 
             const embed = new EmbedBuilder()
                 .setTitle(`📋 /${commandName} の許可設定`)
@@ -143,7 +155,7 @@ export class ConfigCommand extends Command {
                         inline: true,
                     }
                 )
-                .setFooter({ text: "設定がない場合、このコマンドは全員が使用可能です" })
+                .setFooter({ text: footerText })
                 .setTimestamp();
 
             await interaction.reply({
@@ -151,17 +163,27 @@ export class ConfigCommand extends Command {
                 ephemeral: true,
             });
         } else {
-            // 全コマンドの概要表示
-            const commands = ["bosyu", "bosyu-bpsr", "remind", "remind-list"];
-            const fields = commands.map(cmd => {
-                const users = getAllowedUsers(guildId, cmd);
-                const roles = getAllowedRoles(guildId, cmd);
+            // 全コマンドの概要表示（中央設定から動的に取得）
+            const { COMMANDS, isOwnerOnlyCommand, isRestrictedCommand } = await import("../command-config.js");
+
+            const fields = COMMANDS.map(cmd => {
+                const users = getAllowedUsers(guildId, cmd.name);
+                const roles = getAllowedRoles(guildId, cmd.name);
                 const hasRestrictions = users.length > 0 || roles.length > 0;
+
+                let value: string;
+                if (isOwnerOnlyCommand(cmd.name)) {
+                    value = "🔐 オーナーのみ";
+                } else if (hasRestrictions) {
+                    value = `👤 ${users.length}人 / 🏷️ ${roles.length}ロール`;
+                } else if (isRestrictedCommand(cmd.name)) {
+                    value = "🔒 オーナー/許可ユーザー";
+                } else {
+                    value = "✅ 全員使用可";
+                }
                 return {
-                    name: `/${cmd}`,
-                    value: hasRestrictions
-                        ? `👤 ${users.length}人 / 🏷️ ${roles.length}ロール`
-                        : "✅ 全員使用可",
+                    name: `/${cmd.name}`,
+                    value,
                     inline: true,
                 };
             });
