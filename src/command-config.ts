@@ -30,6 +30,7 @@ export const COMMANDS: CommandDefinition[] = [
     { name: "bosyu-bpsr", description: "ロール別募集（BPSR）", permissionType: "public" },
     { name: "remind", description: "リマインダー登録", permissionType: "public" },
     { name: "remind-list", description: "リマインダー一覧", permissionType: "public" },
+    { name: "dice", description: "ダイスロール", permissionType: "public" },
     { name: "help", description: "ヘルプ表示", permissionType: "public" },
 ];
 
