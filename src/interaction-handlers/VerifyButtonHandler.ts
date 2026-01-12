@@ -5,7 +5,8 @@
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
 import { type ButtonInteraction, type GuildMember, MessageFlags } from "discord.js";
-import { getVerifySetting, deleteVerifySetting, isUserAllowedForCommand, hasAnyPermissionSettings } from "../db.js";
+import { getVerifySetting, deleteVerifySetting } from "../db.js";
+import { isUserAllowedForCommand, hasAnyPermissionSettings } from "../lib/permission-utils.js";
 import { isBotOwner } from "../config.js";
 import {
     parseVerifyButtonId,

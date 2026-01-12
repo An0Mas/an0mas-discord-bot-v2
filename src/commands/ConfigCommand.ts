@@ -5,7 +5,7 @@
 
 import { Command } from "@sapphire/framework";
 import { EmbedBuilder, MessageFlags } from "discord.js";
-import { checkOwnerOnly, PermissionResult } from "../permissions.js";
+import { checkOwnerOnly, PermissionResult } from "../lib/permission-utils.js";
 import { getGuildConfig, getAllEnabledGuilds, getAllowedUsers, getAllowedRoles } from "../db.js";
 import { getOwnerId } from "../config.js";
 

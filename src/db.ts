@@ -275,46 +275,6 @@ export function getAllowedRoles(guildId: string, command: string): string[] {
   ).all(guildId, command) as { role_id: string }[];
   return rows.map(r => r.role_id);
 }
-
-// ユーザーが特定コマンドの実行権限を持っているかチェック
-export function isUserAllowedForCommand(
-  guildId: string,
-  command: string,
-  userId: string,
-  userRoleIds: string[]
-): boolean {
-  const database = getDb();
-
-  // 許可ユーザーに含まれているかチェック
-  const userAllowed = database.prepare(
-    "SELECT 1 FROM allowed_users WHERE guild_id = ? AND command = ? AND user_id = ?"
-  ).get(guildId, command, userId);
-  if (userAllowed) return true;
-
-  // 許可ロールに含まれているかチェック
-  if (userRoleIds.length > 0) {
-    const placeholders = userRoleIds.map(() => '?').join(',');
-    const roleAllowed = database.prepare(
-      `SELECT 1 FROM allowed_roles WHERE guild_id = ? AND command = ? AND role_id IN (${placeholders})`
-    ).get(guildId, command, ...userRoleIds);
-    if (roleAllowed) return true;
-  }
-
-  return false;
-}
-
-// 許可設定が存在するかチェック（空の場合はEveryoneとして扱う）
-export function hasAnyPermissionSettings(guildId: string, command: string): boolean {
-  const database = getDb();
-  const userCount = database.prepare(
-    "SELECT COUNT(*) as count FROM allowed_users WHERE guild_id = ? AND command = ?"
-  ).get(guildId, command) as { count: number };
-  const roleCount = database.prepare(
-    "SELECT COUNT(*) as count FROM allowed_roles WHERE guild_id = ? AND command = ?"
-  ).get(guildId, command) as { count: number };
-  return userCount.count > 0 || roleCount.count > 0;
-}
-
 // ========================
 // 認証設定関連
 // ========================

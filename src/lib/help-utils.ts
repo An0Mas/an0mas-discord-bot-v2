@@ -14,7 +14,7 @@ import {
 } from "discord.js";
 import { getCommandDefinition } from "../command-config.js";
 import { isBotOwner } from "../config.js";
-import { isUserAllowedForCommand, hasAnyPermissionSettings } from "../db.js";
+import { isUserAllowedForCommand, hasAnyPermissionSettings } from "./permission-utils.js";
 
 export type HelpEntry = {
     name: string;

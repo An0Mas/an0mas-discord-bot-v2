@@ -4,12 +4,8 @@
  */
 
 import { Command } from "@sapphire/framework";
-import { checkGuildPermission } from "../permissions.js";
-import {
-    saveVerifySetting,
-    isUserAllowedForCommand,
-    hasAnyPermissionSettings,
-} from "../db.js";
+import { checkGuildPermission, isUserAllowedForCommand, hasAnyPermissionSettings } from "../lib/permission-utils.js";
+import { saveVerifySetting } from "../db.js";
 import { isBotOwner } from "../config.js";
 import { buildVerifyEmbed, buildVerifyComponents } from "../lib/verify-utils.js";
 import { type GuildMember, MessageFlags } from "discord.js";

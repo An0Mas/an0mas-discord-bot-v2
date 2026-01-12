@@ -5,7 +5,7 @@
 
 import { Command } from "@sapphire/framework";
 import { MessageFlags } from "discord.js";
-import { checkOwnerOnly, PermissionResult } from "../permissions.js";
+import { checkOwnerOnly, PermissionResult } from "../lib/permission-utils.js";
 import {
     enableGuild,
     disableGuild,

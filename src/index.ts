@@ -21,7 +21,7 @@ import { dirname } from "node:path";
 
 import { initDatabase } from "./db.js";
 import { initializeScheduler } from "./scheduler.js";
-import { checkGuildPermission } from "./permissions.js";
+import { checkGuildPermission } from "./lib/permission-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
