@@ -15,13 +15,12 @@ process.on("unhandledRejection", (reason, promise) => {
   // 継続可能なエラーとして扱う（クラッシュさせない）
 });
 import { SapphireClient } from "@sapphire/framework";
-import { Events, GatewayIntentBits, MessageFlags } from "discord.js";
+import { Events, GatewayIntentBits } from "discord.js";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
 import { initDatabase } from "./db.js";
 import { initializeScheduler } from "./scheduler.js";
-import { checkGuildPermission } from "./lib/permission-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -43,31 +42,6 @@ client.once(Events.ClientReady, (readyClient) => {
   initializeScheduler(readyClient);
 });
 
-// Guild許可チェック（Sapphireのイベントリスナーとして設定）
-// オーナー専用コマンド（/allow, /config）はスキップ
-client.on(Events.InteractionCreate, async (interaction) => {
-  // スラッシュコマンドのみ処理
-  if (!interaction.isChatInputCommand()) return;
-
-  // オーナー専用コマンドはGuild許可チェックをスキップ
-  const isOwnerOnlyCommand =
-    interaction.commandName === "allow" ||
-    interaction.commandName === "config";
-
-  if (isOwnerOnlyCommand) return; // Sapphireが処理
-
-  // Guild許可チェック
-  const guildCheck = checkGuildPermission(interaction);
-  if (!guildCheck.allowed) {
-    if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
-      await interaction.reply({
-        content: guildCheck.reason,
-        flags: MessageFlags.Ephemeral,
-      });
-    }
-    return;
-  }
-  // Sapphireにコマンド処理を任せる（何もしない）
-});
+// Guild許可チェックはPreconditionで実行（src/preconditions/GuildAllowed.ts）
 
 client.login(token);

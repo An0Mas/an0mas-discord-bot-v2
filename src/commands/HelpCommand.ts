@@ -29,6 +29,7 @@ export class HelpCommand extends Command {
             ...options,
             name: "help",
             description: "コマンドの使い方を一覧・詳細で確認できます",
+            preconditions: ["GuildAllowed"],
         });
     }
 

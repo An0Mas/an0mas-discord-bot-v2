@@ -18,6 +18,7 @@ export class BosyuCommand extends Command {
             ...options,
             name: "bosyu",
             description: "参加者募集を作成します",
+            preconditions: ["GuildAllowed"],
         });
     }
 

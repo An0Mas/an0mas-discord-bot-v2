@@ -11,6 +11,7 @@ export class RemindCommand extends Command {
             ...options,
             name: "remind",
             description: "リマインダーを登録します（DM通知）",
+            preconditions: ["GuildAllowed"],
         });
     }
 

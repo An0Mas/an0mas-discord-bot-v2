@@ -11,6 +11,7 @@ export class DiceCommand extends Command {
             ...options,
             name: "dice",
             description: "ダイスロール。指定した形式でダイスを振ります",
+            preconditions: ["GuildAllowed"],
         });
     }
 
