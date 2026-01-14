@@ -64,3 +64,8 @@ WARP.md
 /.what-is-this.md
 
 ${LOCALAPPDATA}/
+
+# ===== Claude / Antigravity =====
+.claude/
+.mcp.json
+CLAUDE.md

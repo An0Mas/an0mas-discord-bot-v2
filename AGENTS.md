@@ -61,6 +61,8 @@
 - **mainへ直接コミットしない**
 - 作業はブランチで行う：例 `agent/<short-task>`（例：`agent/add-ping`）
 - まとまったらPRを作る（本文は短くてOK）
+- Codex環境では `git` が PATH に無い場合があるため、フルパスで実行する
+  - 例：`C:\Program Files\Git\bin\git.exe`
 
 ---
 
