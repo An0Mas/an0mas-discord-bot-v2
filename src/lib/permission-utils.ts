@@ -37,7 +37,7 @@ export function checkGuildPermission(interaction: Interaction): PermissionResult
 
     return {
         allowed: false,
-        reason: "🚫 このサーバーではBotの利用が許可されていません。",
+        reason: "🚫 このサーバーではBotが有効化されていません。管理者に `/allow guild add` を依頼してください。",
     };
 }
 

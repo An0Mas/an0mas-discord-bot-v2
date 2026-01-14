@@ -13,6 +13,7 @@ export class RemindListCommand extends Command {
             ...options,
             name: "remind-list",
             description: "登録したリマインダーの一覧を表示します",
+            preconditions: ["GuildAllowed"],
         });
     }
 

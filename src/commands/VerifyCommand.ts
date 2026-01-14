@@ -4,7 +4,7 @@
  */
 
 import { Command } from "@sapphire/framework";
-import { checkGuildPermission, isUserAllowedForCommand, hasAnyPermissionSettings } from "../lib/permission-utils.js";
+import { isUserAllowedForCommand, hasAnyPermissionSettings } from "../lib/permission-utils.js";
 import { saveVerifySetting } from "../db.js";
 import { isBotOwner } from "../config.js";
 import { buildVerifyEmbed, buildVerifyComponents } from "../lib/verify-utils.js";
@@ -16,6 +16,7 @@ export class VerifyCommand extends Command {
             ...options,
             name: "verify",
             description: "合言葉認証システムを設置します",
+            preconditions: ["GuildAllowed"],
         });
     }
 
@@ -40,16 +41,6 @@ export class VerifyCommand extends Command {
     }
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-        // Guild許可チェック
-        const guildCheck = checkGuildPermission(interaction);
-        if (!guildCheck.allowed) {
-            await interaction.reply({
-                content: guildCheck.reason,
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
-        }
-
         // サーバー内チェック
         if (!interaction.guildId || !interaction.guild) {
             await interaction.reply({

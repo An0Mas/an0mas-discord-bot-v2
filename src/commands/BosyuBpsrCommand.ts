@@ -18,6 +18,7 @@ export class BosyuBpsrCommand extends Command {
             ...options,
             name: "bosyu-bpsr",
             description: "BPSR用の募集を作成します（ロール選択式）",
+            preconditions: ["GuildAllowed"],
         });
     }
 
