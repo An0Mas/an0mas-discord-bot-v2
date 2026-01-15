@@ -46,13 +46,27 @@ export class MentionReactorsCommand extends Command {
             return;
         }
 
-        // メッセージを取得
+        // メッセージを取得（現在のチャンネル → 親チャンネルの順で検索）
         let message;
         try {
-            message = await interaction.channel.messages.fetch(messageId);
+            message = await interaction.channel.messages.fetch({ message: messageId, force: true });
         } catch {
+            // スレッドの場合は親チャンネルも検索
+            if ("parent" in interaction.channel && interaction.channel.parent) {
+                try {
+                    const parentChannel = interaction.channel.parent;
+                    if ("messages" in parentChannel) {
+                        message = await parentChannel.messages.fetch({ message: messageId, force: true });
+                    }
+                } catch {
+                    // 親チャンネルでも見つからない
+                }
+            }
+        }
+
+        if (!message) {
             await interaction.reply({
-                content: "❌ メッセージが見つかりません。正しいメッセージIDを指定してください。",
+                content: "❌ メッセージが見つかりません。正しいメッセージIDを指定してください。\n（同じチャンネルまたはスレッドの親チャンネル内のメッセージのみ対象です）",
                 flags: MessageFlags.Ephemeral,
             });
             return;
