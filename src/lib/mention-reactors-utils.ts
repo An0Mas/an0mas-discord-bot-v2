@@ -26,6 +26,35 @@ export type ReactionInfo = {
 };
 
 /**
+ * メッセージ指定（IDまたはURL）のパース結果
+ */
+export type MessageTarget = {
+    guildId: string | null;    // URLから抽出（nullの場合は現在のサーバー）
+    channelId: string | null;  // URLから抽出（nullの場合は現在のチャンネル）
+    messageId: string;
+};
+
+/**
+ * メッセージIDまたはメッセージリンクをパース
+ * @param input メッセージIDまたはメッセージリンク
+ * @returns パース結果
+ */
+export function parseMessageInput(input: string): MessageTarget {
+    // URLパターン: https://discord.com/channels/<guildId>/<channelId>/<messageId>
+    // または https://discordapp.com/channels/...
+    const urlRegex = /discord(?:app)?\.com\/channels\/(\d+)\/(\d+)\/(\d+)/;
+    const match = input.match(urlRegex);
+
+    if (match) {
+        const [, guildId, channelId, messageId] = match;
+        return { guildId, channelId, messageId };
+    }
+
+    // IDのみの場合（数字のみ）
+    return { guildId: null, channelId: null, messageId: input };
+}
+
+/**
  * メッセージからリアクション情報を取得
  */
 export function getReactionInfoList(message: Message): ReactionInfo[] {
@@ -51,6 +80,7 @@ export function getReactionInfoList(message: Message): ReactionInfo[] {
  */
 export function buildReactionButtons(
     reactions: ReactionInfo[],
+    channelId: string,
     messageId: string
 ): ActionRowBuilder<ButtonBuilder>[] {
     const rows: ActionRowBuilder<ButtonBuilder>[] = [];
@@ -66,7 +96,7 @@ export function buildReactionButtons(
             buttonCount = 0;
         }
 
-        const customId = buildCustomId(messageId, reaction.emojiId, reaction.isCustom);
+        const customId = buildCustomId(channelId, messageId, reaction.emojiId, reaction.isCustom);
 
         currentRow.addComponents(
             new ButtonBuilder()
@@ -78,7 +108,7 @@ export function buildReactionButtons(
     }
 
     // 「全員」ボタンを追加
-    const allCustomId = buildCustomId(messageId, "all", false);
+    const allCustomId = buildCustomId(channelId, messageId, "all", false);
     currentRow.addComponents(
         new ButtonBuilder()
             .setCustomId(allCustomId)
@@ -92,20 +122,22 @@ export function buildReactionButtons(
 
 /**
  * customIdを構築
- * 形式: mention-reactors:<messageId>:<emojiId>:<isCustom>
+ * 形式: mention-reactors:<channelId>:<messageId>:<emojiId>:<isCustom>
  */
 export function buildCustomId(
+    channelId: string,
     messageId: string,
     emojiId: string,
     isCustom: boolean
 ): string {
-    return `${MENTION_REACTORS_PREFIX}:${messageId}:${emojiId}:${isCustom ? "1" : "0"}`;
+    return `${MENTION_REACTORS_PREFIX}:${channelId}:${messageId}:${emojiId}:${isCustom ? "1" : "0"}`;
 }
 
 /**
  * customIdをパース
  */
 export function parseCustomId(customId: string): {
+    channelId: string;
     messageId: string;
     emojiId: string;
     isCustom: boolean;
@@ -116,12 +148,13 @@ export function parseCustomId(customId: string): {
     }
 
     const parts = customId.split(":");
-    if (parts.length !== 4) {
+    if (parts.length !== 5) {
         return null;
     }
 
-    const [, messageId, emojiId, isCustomFlag] = parts;
+    const [, channelId, messageId, emojiId, isCustomFlag] = parts;
     return {
+        channelId,
         messageId,
         emojiId,
         isCustom: isCustomFlag === "1",

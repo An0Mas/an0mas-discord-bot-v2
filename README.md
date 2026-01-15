@@ -1,4 +1,4 @@
-# an0mas-discord-bot-v2 (v1.0.0)
+# an0mas-discord-bot-v2 (v1.1.0)
 
 個人用 Discord Bot（TypeScript + Sapphire Framework / discord.js v14）
 

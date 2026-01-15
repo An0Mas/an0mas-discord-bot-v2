@@ -4,10 +4,11 @@
  */
 
 import { Command } from "@sapphire/framework";
-import { MessageFlags } from "discord.js";
+import { MessageFlags, type TextBasedChannel } from "discord.js";
 import {
     getReactionInfoList,
     buildReactionButtons,
+    parseMessageInput,
 } from "../lib/mention-reactors-utils.js";
 
 export class MentionReactorsCommand extends Command {
@@ -27,46 +28,63 @@ export class MentionReactorsCommand extends Command {
                 .setDescription("リアクションを押した人全員にメンションを送ります")
                 .addStringOption((option) =>
                     option
-                        .setName("message_id")
-                        .setDescription("対象メッセージのID")
+                        .setName("message")
+                        .setDescription("対象メッセージのIDまたはリンク")
                         .setRequired(true)
                 )
         );
     }
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-        const messageId = interaction.options.getString("message_id", true);
+        const input = interaction.options.getString("message", true);
 
-        // チャンネルチェック
-        if (!interaction.channel || !("messages" in interaction.channel)) {
+        // 入力をパース（ID or URL）
+        const { guildId, channelId, messageId } = parseMessageInput(input);
+
+        // 別サーバーのリンクは拒否
+        if (guildId && guildId !== interaction.guildId) {
             await interaction.reply({
-                content: "❌ このチャンネルではメッセージを取得できません。",
+                content: "❌ このリンクは別サーバーのため使用できません。",
                 flags: MessageFlags.Ephemeral,
             });
             return;
         }
 
-        // メッセージを取得（現在のチャンネル → 親チャンネルの順で検索）
-        let message;
-        try {
-            message = await interaction.channel.messages.fetch({ message: messageId, force: true });
-        } catch {
-            // スレッドの場合は親チャンネルも検索
-            if ("parent" in interaction.channel && interaction.channel.parent) {
-                try {
-                    const parentChannel = interaction.channel.parent;
-                    if ("messages" in parentChannel) {
-                        message = await parentChannel.messages.fetch({ message: messageId, force: true });
-                    }
-                } catch {
-                    // 親チャンネルでも見つからない
+        // メッセージを取得するチャンネルを決定
+        let targetChannel: TextBasedChannel | null = null;
+
+        if (channelId) {
+            // URLからチャンネルIDが指定された場合
+            try {
+                const channel = await this.container.client.channels.fetch(channelId);
+                if (channel && "messages" in channel) {
+                    targetChannel = channel as TextBasedChannel;
                 }
+            } catch {
+                // チャンネル取得失敗
+            }
+        } else {
+            // チャンネルIDが指定されていない場合は現在のチャンネル
+            if (interaction.channel && "messages" in interaction.channel) {
+                targetChannel = interaction.channel;
             }
         }
 
-        if (!message) {
+        if (!targetChannel) {
             await interaction.reply({
-                content: "❌ メッセージが見つかりません。正しいメッセージIDを指定してください。\n（同じチャンネルまたはスレッドの親チャンネル内のメッセージのみ対象です）",
+                content: "❌ チャンネルが見つかりません。正しいメッセージリンクを指定してください。",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
+
+        // メッセージを取得
+        let message;
+        try {
+            message = await targetChannel.messages.fetch({ message: messageId, force: true });
+        } catch {
+            await interaction.reply({
+                content: "❌ メッセージが見つかりません。正しいメッセージIDまたはメッセージリンクを指定してください。",
                 flags: MessageFlags.Ephemeral,
             });
             return;
@@ -83,8 +101,8 @@ export class MentionReactorsCommand extends Command {
             return;
         }
 
-        // ボタンを構築
-        const rows = buildReactionButtons(reactions, messageId);
+        // ボタンを構築（channelIdを埋め込む）
+        const rows = buildReactionButtons(reactions, targetChannel.id, messageId);
 
         await interaction.reply({
             content: "📋 メンションを送りたいリアクションを選択してください：",

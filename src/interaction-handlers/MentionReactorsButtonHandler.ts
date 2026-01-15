@@ -7,7 +7,7 @@ import {
     InteractionHandler,
     InteractionHandlerTypes,
 } from "@sapphire/framework";
-import { type ButtonInteraction, MessageFlags } from "discord.js";
+import { type ButtonInteraction, MessageFlags, type TextBasedChannel } from "discord.js";
 import {
     isMentionReactorsCustomId,
     parseCustomId,
@@ -44,36 +44,41 @@ export class MentionReactorsButtonHandler extends InteractionHandler {
         interaction: ButtonInteraction,
         result: InteractionHandler.ParseResult<this>
     ) {
-        const { messageId, emojiId, isCustom, isAll } = result;
+        const { channelId, messageId, emojiId, isCustom, isAll } = result;
 
-        // チャンネルチェック
-        if (!interaction.channel || !("messages" in interaction.channel)) {
+        // チャンネルを取得
+        let targetChannel: TextBasedChannel | null = null;
+        try {
+            const channel = await this.container.client.channels.fetch(channelId);
+            if (channel && "messages" in channel) {
+                targetChannel = channel as TextBasedChannel;
+            }
+        } catch {
+            // チャンネル取得失敗
+        }
+
+        if (!targetChannel) {
             await interaction.reply({
-                content: "❌ このチャンネルではメッセージを取得できません。",
+                content: "❌ チャンネルが見つかりません。",
                 flags: MessageFlags.Ephemeral,
             });
             return;
         }
 
-        // メッセージを取得（現在のチャンネル → 親チャンネルの順で検索）
-        let message;
-        try {
-            message = await interaction.channel.messages.fetch({ message: messageId, force: true });
-        } catch {
-            // スレッドの場合は親チャンネルも検索
-            if ("parent" in interaction.channel && interaction.channel.parent) {
-                try {
-                    const parentChannel = interaction.channel.parent;
-                    if ("messages" in parentChannel) {
-                        message = await parentChannel.messages.fetch({ message: messageId, force: true });
-                    }
-                } catch {
-                    // 親チャンネルでも見つからない
-                }
-            }
+        // 防御的チェック: 別サーバーのチャンネルは拒否
+        if ("guildId" in targetChannel && targetChannel.guildId !== interaction.guildId) {
+            await interaction.reply({
+                content: "❌ このチャンネルにはアクセスできません。",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
         }
 
-        if (!message) {
+        // メッセージを取得
+        let message;
+        try {
+            message = await targetChannel.messages.fetch({ message: messageId, force: true });
+        } catch {
             await interaction.reply({
                 content: "❌ 元のメッセージが見つかりません。削除された可能性があります。",
                 flags: MessageFlags.Ephemeral,
@@ -109,9 +114,9 @@ export class MentionReactorsButtonHandler extends InteractionHandler {
             });
 
             // 2000文字を超えた場合は追加メッセージを送信
-            if (mentionMessages.length > 1 && "send" in interaction.channel) {
+            if (mentionMessages.length > 1 && "send" in targetChannel) {
                 for (let i = 1; i < mentionMessages.length; i++) {
-                    await interaction.channel.send(mentionMessages[i]);
+                    await targetChannel.send(mentionMessages[i]);
                 }
             }
         } catch (error) {
