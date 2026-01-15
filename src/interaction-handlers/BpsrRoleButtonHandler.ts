@@ -113,10 +113,15 @@ export class BpsrRoleButtonHandler extends InteractionHandler {
         } catch (error) {
             // 権限不足などのエラー
             console.error("[BpsrRoleButtonHandler] ロール操作エラー:", error);
-            await interaction.reply({
-                content: "❌ ロールの操作に失敗しました。BOTの権限を確認してください。",
-                flags: MessageFlags.Ephemeral,
-            });
+
+            // 既にreplyしていなければエラーメッセージを返す
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: "❌ ロールの操作に失敗しました。BOTの権限を確認してください。",
+                    flags: MessageFlags.Ephemeral,
+                });
+            }
+            // エラーを再throwしない（リスナーで二重replyを防ぐ）
         }
     }
 }
