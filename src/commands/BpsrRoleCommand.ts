@@ -4,12 +4,7 @@
  */
 
 import { Command } from "@sapphire/framework";
-import { GuildMember, MessageFlags } from "discord.js";
-import { isBotOwner } from "../config.js";
-import {
-    hasAnyPermissionSettings,
-    isUserAllowedForCommand,
-} from "../lib/permission-utils.js";
+import { MessageFlags } from "discord.js";
 import {
     buildBpsrRoleComponents,
     buildBpsrRoleEmbed,
@@ -23,7 +18,7 @@ export class BpsrRoleCommand extends Command {
             ...options,
             name: "bpsr-role",
             description: "ロール付与ボタンを設置します",
-            preconditions: ["GuildAllowed"],
+            preconditions: ["GuildAllowed", "RestrictedAllowed"],
         });
     }
 
@@ -68,52 +63,8 @@ export class BpsrRoleCommand extends Command {
     public override async chatInputRun(
         interaction: Command.ChatInputCommandInteraction
     ) {
-        // サーバー内チェック
-        if (!interaction.guildId || !interaction.guild) {
-            await interaction.reply({
-                content: "❌ このコマンドはサーバー内でのみ使用できます。",
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
-        }
-
-        // 権限チェック（オーナー or 許可されたユーザー/ロール）
-        const hasPermission = await this.checkPermission(interaction);
-        if (!hasPermission) {
-            await interaction.reply({
-                content: "🚫 このコマンドを実行する権限がありません。",
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
-        }
-
+        // 権限チェックはRestrictedAllowed Preconditionで実施済み
         await this.handleSetup(interaction);
-    }
-
-    private async checkPermission(
-        interaction: Command.ChatInputCommandInteraction
-    ): Promise<boolean> {
-        // オーナーは常に許可
-        if (isBotOwner(interaction.user.id)) {
-            return true;
-        }
-
-        const guildId = interaction.guildId!;
-        const member = interaction.member as GuildMember;
-        const userRoleIds = member.roles.cache.map((r) => r.id);
-
-        // 許可設定がない場合はオーナーのみ
-        if (!hasAnyPermissionSettings(guildId, "bpsr-role")) {
-            return false;
-        }
-
-        // 許可ユーザー/ロールかチェック
-        return isUserAllowedForCommand(
-            guildId,
-            "bpsr-role",
-            interaction.user.id,
-            userRoleIds
-        );
     }
 
     private async handleSetup(interaction: Command.ChatInputCommandInteraction) {
