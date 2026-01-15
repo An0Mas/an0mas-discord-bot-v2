@@ -18,6 +18,9 @@ BPSR（ゲーム）特化のロール別募集を作成します。
 - ロール変更はボタン押し直しで自動切替
 - 投稿者は自動参加せず、ボタンで参加
 
+### /bpsr-role
+ロール付与ボタンを設置します。タンク/アタッカー/ヒーラーから選択し、排他的にロールを付与します。
+
 ### /remind
 指定時刻にDMでリマインダー通知を受け取れます。
 
@@ -80,27 +83,36 @@ Discord Developer Portal でBot招待URLを生成する際に必要な設定で�
 ```
 src/
 ├── index.ts                 # エントリーポイント（SapphireClient初期化）
-├── db.ts                    # SQLite初期化
+├── db.ts                    # SQLite操作
 ├── config.ts                # 環境変数設定
-├── permissions.ts           # 権限チェック
+├── command-config.ts        # コマンドメタデータ・権限タイプ
 ├── scheduler.ts             # リマインダースケジューラ
 ├── commands/                # Sapphire Commandクラス（自動登録）
 │   ├── HelpCommand.ts
 │   ├── BosyuCommand.ts
 │   ├── BosyuBpsrCommand.ts
+│   ├── BpsrRoleCommand.ts
 │   ├── RemindCommand.ts
 │   ├── RemindListCommand.ts
-│   ├── AllowCommand.ts
-│   ├── ConfigCommand.ts
 │   ├── DiceCommand.ts
-│   └── VerifyCommand.ts
+│   ├── VerifyCommand.ts
+│   ├── AllowCommand.ts
+│   └── ConfigCommand.ts
 ├── interaction-handlers/    # Sapphire InteractionHandler（ボタン・モーダル）
 │   └── ...
+├── listeners/               # Sapphireイベントリスナー（エラーハンドリング）
+│   └── ...
+├── preconditions/           # Sapphire Precondition（権限チェック）
+│   └── GuildAllowed.ts
 └── lib/                     # 共有ユーティリティ
+    ├── permission-utils.ts  # 権限チェック
+    ├── error-notify.ts      # エラーDM通知
     ├── help-utils.ts
     ├── bosyu-utils.ts
     ├── bosyu-bpsr-utils.ts
-    └── remind-utils.ts
+    ├── bpsr-role-utils.ts
+    ├── remind-utils.ts
+    └── verify-utils.ts
 ```
 
 ## DB
