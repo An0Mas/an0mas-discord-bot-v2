@@ -1,4 +1,7 @@
 {
+  "name": "an0mas-discord-bot-v2",
+  "version": "1.0.0",
+  "description": "Discord便利Bot（Sapphire Framework）",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",

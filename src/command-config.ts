@@ -24,6 +24,7 @@ export const COMMANDS: CommandDefinition[] = [
 
     // オーナー/許可ユーザー
     { name: "verify", description: "合言葉認証システム", permissionType: "restricted" },
+    { name: "bpsr-role", description: "ロール付与ボタン", permissionType: "restricted" },
 
     // 全員使用可
     { name: "bosyu", description: "参加者募集", permissionType: "public" },
