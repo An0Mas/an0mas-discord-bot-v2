@@ -15,12 +15,19 @@ process.on("unhandledRejection", (reason, promise) => {
   // 継続可能なエラーとして扱う（クラッシュさせない）
 });
 import { SapphireClient } from "@sapphire/framework";
-import { Events, GatewayIntentBits } from "discord.js";
+import { ActivityType, Events, GatewayIntentBits } from "discord.js";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
 import { initDatabase } from "./db.js";
 import { initializeScheduler } from "./scheduler.js";
+
+// package.jsonからバージョン取得
+// TODO: dist/のみをデプロイする構成に変更する場合は、
+//       環境変数(BOT_VERSION)からの取得に切り替えるか、フォールバック処理を追加すること
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json") as { version: string };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,6 +45,13 @@ const client = new SapphireClient({
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
+  // ステータス設定
+  // TODO: 本番運用時は「開発中」表記を変更すること
+  try {
+    readyClient.user.setActivity(`⚙️ v${version} 開発中`, { type: ActivityType.Playing });
+  } catch (error) {
+    console.warn("[WARN] ステータス設定に失敗:", error);
+  }
   // スケジューラ初期化（起動時にDBからリマインダーを読み込み）
   initializeScheduler(readyClient);
 });
