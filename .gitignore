@@ -67,5 +67,6 @@ ${LOCALAPPDATA}/
 
 # ===== Claude / Antigravity =====
 .claude/
+.agent/
 .mcp.json
 CLAUDE.md
