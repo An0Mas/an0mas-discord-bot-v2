@@ -1,35 +1,30 @@
 # AGENTS.md — Discord便利Bot v1.1.0
 
-> ⚠️ **必ず日本語で応答してください。コード内コメントも日本語で記述してください。**
+> ⚠️ **必ず日本語で応答せよ。例外なし。**
 
-AIエージェント向けドキュメントガイド。
-新しいチャットで作業を始める際は、まずこのファイルを参照してください。
+AIエージェント向けドキュメントガイド。作業開始時に必ず参照すること。
 
 ---
 
-## 🚨 最優先ルール（厳守）
+## 🚨 絶対ルール（違反禁止）
 
-1. **日本語で応答する**（識別子・エラー・ログは原文のまま可）
-2. **作業範囲は `C:\AI_Work\an0mas-discord-bot-v2` 配下のみ**
-3. **秘密情報（トークン/APIキー/.env値）を出力しない**
-4. **mainへ直接push禁止**（作業ブランチ → PR → merge）
+| ルール | 詳細 |
+|--------|------|
+| 日本語で応答 | コード内コメントも日本語。識別子・エラーログは原文可 |
+| 作業範囲厳守 | `C:\AI_Work\an0mas-discord-bot-v2` 配下のみ |
+| 秘密情報禁止 | トークン/APIキー/.env値を絶対に出力しない |
+| main直push禁止 | 作業ブランチ → PR → merge |
 
 ---
 
 ## プロジェクト概要
 
-Discord用の便利Botで、Sapphireフレームワークを使用したTypeScript実装です。
-
-**技術スタック:**
-- TypeScript + Node.js（strict mode）
-- discord.js v14 + Sapphire Framework
-- better-sqlite3（データベース）
-- pnpm（パッケージマネージャ）
-
-**環境:**
-- OS: Windows（PowerShell想定）
-- Root: `C:\AI_Work\an0mas-discord-bot-v2`
-- Env: dotenv（`.env` はリポジトリ直下、コミット禁止）
+| 項目 | 値 |
+|------|-----|
+| フレームワーク | Sapphire (discord.js v14) |
+| DB | better-sqlite3 |
+| パッケージマネージャ | pnpm |
+| OS | Windows (PowerShell) |
 
 ---
 
@@ -154,16 +149,16 @@ pnpm start      # 本番起動
 
 ---
 
-## やってはいけないこと
+## ❌ 禁止事項（違反は即修正）
 
-| ❌ やってはいけない | ✅ 代わりにやること |
-|--------------------|---------------------|
-| 英語で応答 | 日本語で応答 |
-| 新規スラッシュコマンドを乱発 | ボタンで既存機能を拡張 |
-| `ephemeral: true` を使う | `flags: MessageFlags.Ephemeral` |
-| deferReplyなしで3秒以上の処理 | 先に `deferReply()` を呼ぶ |
-| mainへ直接コミット/push | 作業ブランチを使う |
-| 秘密情報をログ出力 | 絶対に出力しない |
+| 禁止 | 必須 |
+|------|------|
+| 英語で応答 | **日本語で応答** |
+| 新規コマンド乱発 | **ボタンで既存機能を拡張** |
+| `ephemeral: true` | **`flags: MessageFlags.Ephemeral`** |
+| deferReplyなしで3秒超 | **先に `deferReply()` を呼ぶ** |
+| main直接push | **作業ブランチを使う** |
+| 秘密情報をログ出力 | **絶対に出力しない** |
 
 ---
 
