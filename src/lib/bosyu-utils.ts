@@ -90,7 +90,7 @@ export function buildBosyuComponents(state: BosyuState) {
 
   const cancelButton = new ButtonBuilder()
     .setCustomId(`bosyu:cancel:${state.ownerId}`)
-    .setLabel("取消")
+    .setLabel("参加取消")
     .setStyle(ButtonStyle.Danger)
     .setDisabled(closed);
 

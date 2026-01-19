@@ -135,7 +135,7 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
   // 2行目: 取消/締切/＋/－
   const cancelButton = new ButtonBuilder()
     .setCustomId(`bpsr:cancel:${state.ownerId}`)
-    .setLabel("取消")
+    .setLabel("参加取消")
     .setStyle(ButtonStyle.Danger)
     .setDisabled(closed);
 

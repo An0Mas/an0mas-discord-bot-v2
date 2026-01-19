@@ -59,7 +59,7 @@
 ## 4. コンポーネント（ボタン）仕様
 ### 4.1 ボタン一覧
 - `join`（Primary）：`参加`
-- `cancel`（Danger）：`取消`
+- `cancel`（Danger）：`参加取消`
 - `close`（Success）：状態に応じて `締切` / `再開`
 - `plus`（Secondary）：`＋`（絵文字/ラベルどちらでも可）
 - `minus`（Secondary）：`－`
