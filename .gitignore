@@ -65,8 +65,9 @@ WARP.md
 
 ${LOCALAPPDATA}/
 
-# ===== Claude / Antigravity =====
+# ===== AI Tools =====
 .claude/
 .agent/
+.codex/
 .mcp.json
 CLAUDE.md

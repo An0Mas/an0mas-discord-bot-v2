@@ -28,6 +28,19 @@ AIエージェント向けドキュメントガイド。作業開始時に必ず
 
 ---
 
+## Skills
+
+使用可能スキル一覧。必要に応じて追加すること。
+
+- `add-command` — 新しいSlashコマンドを追加する際のチェックリストと手順  
+  ファイル: `.agent/skills/add-command/SKILL.md`
+- `kaizen` — 実装/リファクタ/設計/プロセス改善・エラー処理の継続的改善  
+  ファイル: `.agent/skills/kaizen/SKILL.md`
+- `prompt-engineering` — プロンプト/スキル/コマンド設計の指針  
+  ファイル: `.agent/skills/prompt-engineering/SKILL.md`
+
+---
+
 ## 設計方針
 
 ### コマンド vs ボタンのポリシー
@@ -130,7 +143,7 @@ pnpm start      # 本番起動
 
 ### 新コマンドを追加する場合
 
-1. `docs/DETAILS/<command>.md` を作成（仕様）
+1. 仕様が複雑な場合のみ `docs/DETAILS/<command>.md` を作成（仕様）
 2. `src/commands/<Command>Command.ts` を作成
 3. `preconditions: ["GuildAllowed"]` を追加
 4. 必要に応じてボタン/モーダルハンドラを作成
