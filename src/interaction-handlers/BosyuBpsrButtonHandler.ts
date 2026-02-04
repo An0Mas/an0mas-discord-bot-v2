@@ -9,6 +9,8 @@ import {
     buildBosyuBpsrEditModal,
     buildBosyuBpsrComponents,
     buildBosyuBpsrEmbed,
+    buildBosyuBpsrMentionConfirmComponents,
+    getAllBpsrMembers,
     parseBosyuBpsrCustomId,
     parseBosyuBpsrEmbed,
 } from "../lib/bosyu-bpsr-utils.js";
@@ -58,6 +60,33 @@ export class BosyuBpsrButtonHandler extends InteractionHandler {
             return;
         }
 
+        // メンション確認表示
+        if (parsed.action === "mention") {
+            if (interaction.user.id !== parsed.ownerId) {
+                await interaction.deferUpdate();
+                return;
+            }
+            const members = getAllBpsrMembers(state);
+            const memberCount = members.length;
+            if (memberCount === 0) {
+                await interaction.reply({
+                    content: "📢 参加者がいないためメンションを送信できません。",
+                    ephemeral: true,
+                });
+                return;
+            }
+            const components = buildBosyuBpsrMentionConfirmComponents(
+                parsed.ownerId,
+                interaction.message.id,
+            );
+            await interaction.reply({
+                content: `📢 参加者 **${memberCount}人** にメンションを送信します`,
+                components,
+                ephemeral: true,
+            });
+            return;
+        }
+
         // その他のアクション
         const updated = applyBosyuBpsrAction({
             state,
@@ -78,3 +107,4 @@ export class BosyuBpsrButtonHandler extends InteractionHandler {
         });
     }
 }
+

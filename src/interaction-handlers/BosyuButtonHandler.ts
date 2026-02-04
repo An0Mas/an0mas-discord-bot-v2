@@ -9,6 +9,7 @@ import {
     buildBosyuEditModal,
     buildBosyuComponents,
     buildBosyuEmbed,
+    buildBosyuMentionConfirmComponents,
     parseBosyuCustomId,
     parseBosyuEmbed,
 } from "../lib/bosyu-utils.js";
@@ -58,6 +59,32 @@ export class BosyuButtonHandler extends InteractionHandler {
             return;
         }
 
+        // メンション確認表示
+        if (parsed.action === "mention") {
+            if (interaction.user.id !== parsed.ownerId) {
+                await interaction.deferUpdate();
+                return;
+            }
+            const memberCount = state.members.length;
+            if (memberCount === 0) {
+                await interaction.reply({
+                    content: "📢 参加者がいないためメンションを送信できません。",
+                    ephemeral: true,
+                });
+                return;
+            }
+            const components = buildBosyuMentionConfirmComponents(
+                parsed.ownerId,
+                interaction.message.id,
+            );
+            await interaction.reply({
+                content: `📢 参加者 **${memberCount}人** にメンションを送信します`,
+                components,
+                ephemeral: true,
+            });
+            return;
+        }
+
         // その他のアクション
         const updated = applyBosyuAction({
             state,
@@ -78,3 +105,4 @@ export class BosyuButtonHandler extends InteractionHandler {
         });
     }
 }
+

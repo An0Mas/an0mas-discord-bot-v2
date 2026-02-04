@@ -1,6 +1,6 @@
 {
   "name": "an0mas-discord-bot-v2",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Discord便利Bot（Sapphire Framework）",
   "type": "module",
   "scripts": {

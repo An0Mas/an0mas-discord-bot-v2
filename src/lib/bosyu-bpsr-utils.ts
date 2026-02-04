@@ -21,7 +21,8 @@ type BosyuBpsrAction =
   | "plus"
   | "minus"
   | "close"
-  | "edit";
+  | "edit"
+  | "mention";
 
 export type BosyuBpsrState = {
   ownerId: string;
@@ -133,7 +134,7 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
     .setStyle(ButtonStyle.Primary)
     .setDisabled(closed);
 
-  // 2行目: 取消/締切/編集
+  // 2行目: 取消/締切/編集/メンション
   const cancelButton = new ButtonBuilder()
     .setCustomId(`bpsr:cancel:${state.ownerId}`)
     .setLabel("参加取消")
@@ -150,6 +151,11 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
     .setLabel("編集")
     .setStyle(ButtonStyle.Secondary);
 
+  const mentionButton = new ButtonBuilder()
+    .setCustomId(`bpsr:mention:${state.ownerId}`)
+    .setLabel("📢メンション")
+    .setStyle(ButtonStyle.Secondary);
+
   return [
     new ActionRowBuilder<ButtonBuilder>().addComponents(
       tankButton,
@@ -160,6 +166,7 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
       cancelButton,
       closeButton,
       editButton,
+      mentionButton,
     ),
   ];
 }
@@ -177,7 +184,8 @@ export function parseBosyuBpsrCustomId(customId: string): ParsedBosyuBpsrCustomI
     action !== "plus" &&
     action !== "minus" &&
     action !== "close" &&
-    action !== "edit"
+    action !== "edit" &&
+    action !== "mention"
   ) {
     return null;
   }
@@ -573,3 +581,120 @@ function findMemberRole(state: BosyuBpsrState, userId: string): BpsrRole | null 
 function memberIncludesId(member: string, userId: string) {
   return member.includes(userId);
 }
+
+// ===== メンション機能 =====
+
+const BPSR_MENTION_MODAL_ID_PREFIX = "bpsr-mention-modal:";
+const BPSR_MENTION_MESSAGE_ID = "bpsr-mention-message";
+
+/**
+ * 全ロールの参加者を取得
+ */
+export function getAllBpsrMembers(state: BosyuBpsrState): string[] {
+  return [...state.tanks, ...state.attackers, ...state.healers];
+}
+
+/**
+ * メンション確認用エフェメラルのコンポーネントを構築
+ */
+export function buildBosyuBpsrMentionConfirmComponents(
+  ownerId: string,
+  messageId: string,
+) {
+  const sendButton = new ButtonBuilder()
+    .setCustomId(`bpsr-mention:send:${ownerId}:${messageId}`)
+    .setLabel("✅ 送信")
+    .setStyle(ButtonStyle.Success);
+
+  const modalButton = new ButtonBuilder()
+    .setCustomId(`bpsr-mention:modal:${ownerId}:${messageId}`)
+    .setLabel("📝 メッセージ付き")
+    .setStyle(ButtonStyle.Primary);
+
+  const cancelButton = new ButtonBuilder()
+    .setCustomId(`bpsr-mention:cancel:${ownerId}:${messageId}`)
+    .setLabel("❌ キャンセル")
+    .setStyle(ButtonStyle.Secondary);
+
+  return [
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      sendButton,
+      modalButton,
+      cancelButton,
+    ),
+  ];
+}
+
+/**
+ * メンション確認用customIdをパース
+ */
+export function parseBosyuBpsrMentionConfirmCustomId(customId: string) {
+  if (!customId.startsWith("bpsr-mention:")) return null;
+  const parts = customId.split(":");
+  if (parts.length !== 4) return null;
+  const [, action, ownerId, messageId] = parts;
+  if (action !== "send" && action !== "modal" && action !== "cancel") {
+    return null;
+  }
+  if (!ownerId || !messageId) return null;
+  return { action: action as "send" | "modal" | "cancel", ownerId, messageId };
+}
+
+/**
+ * メンションメッセージ入力モーダルを構築
+ */
+export function buildBosyuBpsrMentionModal(ownerId: string, messageId: string) {
+  const messageInput = new TextInputBuilder()
+    .setCustomId(BPSR_MENTION_MESSAGE_ID)
+    .setLabel("メッセージ（参加者へのお知らせ）")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true)
+    .setMaxLength(500)
+    .setPlaceholder("開始します！");
+
+  return new ModalBuilder()
+    .setCustomId(`${BPSR_MENTION_MODAL_ID_PREFIX}${ownerId}:${messageId}`)
+    .setTitle("参加者へメンション")
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput),
+    );
+}
+
+/**
+ * メンションモーダルのcustomIdをパース
+ */
+export function parseBosyuBpsrMentionModalTarget(customId: string) {
+  if (!customId.startsWith(BPSR_MENTION_MODAL_ID_PREFIX)) return null;
+  const payload = customId.slice(BPSR_MENTION_MODAL_ID_PREFIX.length);
+  const parts = payload.split(":");
+  if (parts.length !== 2) return null;
+  const [ownerId, messageId] = parts;
+  if (!ownerId || !messageId) return null;
+  return { ownerId, messageId };
+}
+
+/**
+ * メンションモーダルの送信内容を取得
+ */
+export function parseBosyuBpsrMentionModalSubmission(
+  interaction: ModalSubmitInteraction,
+): string {
+  return interaction.fields.getTextInputValue(BPSR_MENTION_MESSAGE_ID).trim();
+}
+
+/**
+ * メンション送信用のメッセージを構築
+ * TODO: 参加者が多い場合（約80人以上）、Discordの2000文字制限を超える可能性あり。
+ *       必要に応じてメッセージ分割または文字数チェックを実装。
+ */
+export function buildBosyuBpsrMentionMessage(
+  members: string[],
+  customMessage?: string,
+): string {
+  const mentions = members.join(" ");
+  if (customMessage) {
+    return `${mentions}\n${customMessage}`;
+  }
+  return `${mentions}\n📢 募集主からのお知らせです`;
+}
+

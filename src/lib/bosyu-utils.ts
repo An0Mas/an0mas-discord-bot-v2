@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 
 type BosyuStatus = "OPEN" | "CLOSED";
-type BosyuAction = "join" | "cancel" | "plus" | "minus" | "close" | "edit";
+type BosyuAction = "join" | "cancel" | "plus" | "minus" | "close" | "edit" | "mention";
 
 export type BosyuState = {
   ownerId: string;
@@ -116,15 +116,23 @@ export function buildBosyuComponents(state: BosyuState) {
     .setLabel("編集")
     .setStyle(ButtonStyle.Secondary);
 
+  const mentionButton = new ButtonBuilder()
+    .setCustomId(`bosyu:mention:${state.ownerId}`)
+    .setLabel("📢メンション")
+    .setStyle(ButtonStyle.Secondary);
+
   return [
     new ActionRowBuilder<ButtonBuilder>().addComponents(
       joinButton,
       cancelButton,
+    ),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
       closeButton,
       plusButton,
       minusButton,
+      editButton,
+      mentionButton,
     ),
-    new ActionRowBuilder<ButtonBuilder>().addComponents(editButton),
   ];
 }
 
@@ -138,7 +146,8 @@ export function parseBosyuCustomId(customId: string): ParsedBosyuCustomId | null
     action !== "plus" &&
     action !== "minus" &&
     action !== "close" &&
-    action !== "edit"
+    action !== "edit" &&
+    action !== "mention"
   ) {
     return null;
   }
@@ -472,3 +481,113 @@ function isMember(members: string[], userId: string) {
 function memberIncludesId(member: string, userId: string) {
   return member.includes(userId);
 }
+
+// ===== メンション機能 =====
+
+const BOSYU_MENTION_MODAL_ID_PREFIX = "bosyu-mention-modal:";
+const BOSYU_MENTION_MESSAGE_ID = "bosyu-mention-message";
+
+/**
+ * メンション確認用エフェメラルのコンポーネントを構築
+ */
+export function buildBosyuMentionConfirmComponents(
+  ownerId: string,
+  messageId: string,
+) {
+  const sendButton = new ButtonBuilder()
+    .setCustomId(`bosyu-mention:send:${ownerId}:${messageId}`)
+    .setLabel("✅ 送信")
+    .setStyle(ButtonStyle.Success);
+
+  const modalButton = new ButtonBuilder()
+    .setCustomId(`bosyu-mention:modal:${ownerId}:${messageId}`)
+    .setLabel("📝 メッセージ付き")
+    .setStyle(ButtonStyle.Primary);
+
+  const cancelButton = new ButtonBuilder()
+    .setCustomId(`bosyu-mention:cancel:${ownerId}:${messageId}`)
+    .setLabel("❌ キャンセル")
+    .setStyle(ButtonStyle.Secondary);
+
+  return [
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      sendButton,
+      modalButton,
+      cancelButton,
+    ),
+  ];
+}
+
+/**
+ * メンション確認用customIdをパース
+ */
+export function parseBosyuMentionConfirmCustomId(customId: string) {
+  if (!customId.startsWith("bosyu-mention:")) return null;
+  const parts = customId.split(":");
+  if (parts.length !== 4) return null;
+  const [, action, ownerId, messageId] = parts;
+  if (action !== "send" && action !== "modal" && action !== "cancel") {
+    return null;
+  }
+  if (!ownerId || !messageId) return null;
+  return { action: action as "send" | "modal" | "cancel", ownerId, messageId };
+}
+
+/**
+ * メンションメッセージ入力モーダルを構築
+ */
+export function buildBosyuMentionModal(ownerId: string, messageId: string) {
+  const messageInput = new TextInputBuilder()
+    .setCustomId(BOSYU_MENTION_MESSAGE_ID)
+    .setLabel("メッセージ（参加者へのお知らせ）")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true)
+    .setMaxLength(500)
+    .setPlaceholder("開始します！");
+
+  return new ModalBuilder()
+    .setCustomId(`${BOSYU_MENTION_MODAL_ID_PREFIX}${ownerId}:${messageId}`)
+    .setTitle("参加者へメンション")
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput),
+    );
+}
+
+/**
+ * メンションモーダルのcustomIdをパース
+ */
+export function parseBosyuMentionModalTarget(customId: string) {
+  if (!customId.startsWith(BOSYU_MENTION_MODAL_ID_PREFIX)) return null;
+  const payload = customId.slice(BOSYU_MENTION_MODAL_ID_PREFIX.length);
+  const parts = payload.split(":");
+  if (parts.length !== 2) return null;
+  const [ownerId, messageId] = parts;
+  if (!ownerId || !messageId) return null;
+  return { ownerId, messageId };
+}
+
+/**
+ * メンションモーダルの送信内容を取得
+ */
+export function parseBosyuMentionModalSubmission(
+  interaction: ModalSubmitInteraction,
+): string {
+  return interaction.fields.getTextInputValue(BOSYU_MENTION_MESSAGE_ID).trim();
+}
+
+/**
+ * メンション送信用のメッセージを構築
+ * TODO: 参加者が多い場合（約80人以上）、Discordの2000文字制限を超える可能性あり。
+ *       必要に応じてメッセージ分割または文字数チェックを実装。
+ */
+export function buildBosyuMentionMessage(
+  members: string[],
+  customMessage?: string,
+): string {
+  const mentions = members.join(" ");
+  if (customMessage) {
+    return `${mentions}\n${customMessage}`;
+  }
+  return `${mentions}\n📢 募集主からのお知らせです`;
+}
+
