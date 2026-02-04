@@ -1,5 +1,6 @@
 /**
  * /bosyu-bpsr モーダルハンドラ — Sapphire InteractionHandler 形式
+ * ロール別人数制限対応（v0.3）
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from "@sapphire/framework";
@@ -63,7 +64,9 @@ export class BosyuBpsrModalHandler extends InteractionHandler {
                 ownerId: target.ownerId,
                 title: parsed.title,
                 body: parsed.body,
-                remaining: parsed.slots,
+                tankSlots: parsed.tankSlots,
+                attackerSlots: parsed.attackerSlots,
+                healerSlots: parsed.healerSlots,
                 tanks: [],
                 attackers: [],
                 healers: [],
@@ -113,7 +116,9 @@ export class BosyuBpsrModalHandler extends InteractionHandler {
             ...currentState,
             title: parsed.title,
             body: parsed.body,
-            remaining: parsed.slots,
+            tankSlots: parsed.tankSlots,
+            attackerSlots: parsed.attackerSlots,
+            healerSlots: parsed.healerSlots,
         });
 
         const nextEmbed = buildBosyuBpsrEmbed(nextState);

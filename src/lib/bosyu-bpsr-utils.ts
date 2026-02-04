@@ -30,7 +30,9 @@ export type BosyuBpsrState = {
   tanks: string[]; // 🛡️タンク参加者
   attackers: string[]; // ⚔️アタッカー参加者
   healers: string[]; // 💚ヒーラー参加者
-  remaining: number;
+  tankSlots: number; // 🛡️タンク枠数
+  attackerSlots: number; // ⚔️アタッカー枠数
+  healerSlots: number; // 💚ヒーラー枠数
   status: BosyuBpsrStatus;
 };
 
@@ -46,10 +48,6 @@ type ParsedBosyuBpsrCustomId = {
 };
 
 // 定数
-const BPSR_TANK_FIELD = "🛡️タンク";
-const BPSR_ATTACKER_FIELD = "⚔️アタッカー";
-const BPSR_HEALER_FIELD = "💚ヒーラー";
-const BPSR_REMAINING_FIELD = "募集人数";
 const BPSR_OPEN_TEXT = "【募集中】";
 const BPSR_CLOSED_TEXT = "【募集停止】";
 const BPSR_OPEN_IMAGE =
@@ -59,12 +57,11 @@ const BPSR_CLOSED_IMAGE =
 
 const BPSR_MODAL_ID_PREFIX = "bpsr-modal:";
 const BPSR_EDIT_MODAL_ID_PREFIX = "bpsr-edit:";
-const BPSR_MODAL_SLOTS_ID = "bpsr-modal-slots";
 const BPSR_MODAL_TITLE_ID = "bpsr-modal-title";
 const BPSR_MODAL_BODY_ID = "bpsr-modal-body";
-const BPSR_PARTIAL_ERROR =
-  "slots/title/body は3項目すべて入力するか、引数なしで /bosyu-bpsr を実行してモーダル入力してください。";
-const BPSR_MODAL_SLOTS_LABEL = "募集人数（自分を含めてあと何名）";
+const BPSR_MODAL_TANK_SLOTS_ID = "bpsr-modal-tank-slots";
+const BPSR_MODAL_ATTACKER_SLOTS_ID = "bpsr-modal-attacker-slots";
+const BPSR_MODAL_HEALER_SLOTS_ID = "bpsr-modal-healer-slots";
 
 export function createBosyuBpsrState(input: BosyuBpsrState) {
   return input;
@@ -73,6 +70,15 @@ export function createBosyuBpsrState(input: BosyuBpsrState) {
 export function buildBosyuBpsrEmbed(state: BosyuBpsrState) {
   const statusText = state.status === "OPEN" ? BPSR_OPEN_TEXT : BPSR_CLOSED_TEXT;
   const description = `${statusText}\n${state.body}`;
+
+  // ロール別表示（参加者数/枠数）
+  const tankRemaining = state.tankSlots - state.tanks.length;
+  const attackerRemaining = state.attackerSlots - state.attackers.length;
+  const healerRemaining = state.healerSlots - state.healers.length;
+
+  const tankFieldName = `🛡️タンク（${state.tanks.length}/${state.tankSlots}）`;
+  const attackerFieldName = `⚔️アタッカー（${state.attackers.length}/${state.attackerSlots}）`;
+  const healerFieldName = `💚ヒーラー（${state.healers.length}/${state.healerSlots}）`;
 
   const tankFieldValue =
     state.tanks.length > 0 ? state.tanks.join("\n") : "`参加者無し`";
@@ -86,23 +92,18 @@ export function buildBosyuBpsrEmbed(state: BosyuBpsrState) {
     .setDescription(description)
     .setFields(
       {
-        name: BPSR_TANK_FIELD,
+        name: tankFieldName,
         value: tankFieldValue,
         inline: true,
       },
       {
-        name: BPSR_ATTACKER_FIELD,
+        name: attackerFieldName,
         value: attackerFieldValue,
         inline: true,
       },
       {
-        name: BPSR_HEALER_FIELD,
+        name: healerFieldName,
         value: healerFieldValue,
-        inline: true,
-      },
-      {
-        name: BPSR_REMAINING_FIELD,
-        value: `あと${state.remaining}名`,
         inline: true,
       },
     )
@@ -132,7 +133,7 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
     .setStyle(ButtonStyle.Primary)
     .setDisabled(closed);
 
-  // 2行目: 取消/締切/＋/－
+  // 2行目: 取消/締切/編集
   const cancelButton = new ButtonBuilder()
     .setCustomId(`bpsr:cancel:${state.ownerId}`)
     .setLabel("参加取消")
@@ -144,19 +145,6 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
     .setLabel(closeLabel)
     .setStyle(ButtonStyle.Success);
 
-  const plusButton = new ButtonBuilder()
-    .setCustomId(`bpsr:plus:${state.ownerId}`)
-    .setLabel("＋")
-    .setStyle(ButtonStyle.Secondary)
-    .setDisabled(closed);
-
-  const minusButton = new ButtonBuilder()
-    .setCustomId(`bpsr:minus:${state.ownerId}`)
-    .setLabel("－")
-    .setStyle(ButtonStyle.Secondary)
-    .setDisabled(closed);
-
-  // 3行目: 編集
   const editButton = new ButtonBuilder()
     .setCustomId(`bpsr:edit:${state.ownerId}`)
     .setLabel("編集")
@@ -171,10 +159,8 @@ export function buildBosyuBpsrComponents(state: BosyuBpsrState) {
     new ActionRowBuilder<ButtonBuilder>().addComponents(
       cancelButton,
       closeButton,
-      plusButton,
-      minusButton,
+      editButton,
     ),
-    new ActionRowBuilder<ButtonBuilder>().addComponents(editButton),
   ];
 }
 
@@ -200,12 +186,6 @@ export function parseBosyuBpsrCustomId(customId: string): ParsedBosyuBpsrCustomI
 }
 
 export function buildBosyuBpsrModal(userId: string) {
-  const slotsInput = new TextInputBuilder()
-    .setCustomId(BPSR_MODAL_SLOTS_ID)
-    .setLabel(BPSR_MODAL_SLOTS_LABEL)
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true);
-
   const titleInput = new TextInputBuilder()
     .setCustomId(BPSR_MODAL_TITLE_ID)
     .setLabel("タイトル")
@@ -218,24 +198,40 @@ export function buildBosyuBpsrModal(userId: string) {
     .setStyle(TextInputStyle.Paragraph)
     .setRequired(true);
 
+  const tankSlotsInput = new TextInputBuilder()
+    .setCustomId(BPSR_MODAL_TANK_SLOTS_ID)
+    .setLabel("🛡️タンク人数")
+    .setStyle(TextInputStyle.Short)
+    .setPlaceholder("例: 1")
+    .setRequired(true);
+
+  const attackerSlotsInput = new TextInputBuilder()
+    .setCustomId(BPSR_MODAL_ATTACKER_SLOTS_ID)
+    .setLabel("⚔️アタッカー人数")
+    .setStyle(TextInputStyle.Short)
+    .setPlaceholder("例: 2")
+    .setRequired(true);
+
+  const healerSlotsInput = new TextInputBuilder()
+    .setCustomId(BPSR_MODAL_HEALER_SLOTS_ID)
+    .setLabel("💚ヒーラー人数")
+    .setStyle(TextInputStyle.Short)
+    .setPlaceholder("例: 1")
+    .setRequired(true);
+
   return new ModalBuilder()
     .setCustomId(`${BPSR_MODAL_ID_PREFIX}${userId}`)
     .setTitle("BPSR募集作成")
     .addComponents(
-      new ActionRowBuilder<TextInputBuilder>().addComponents(slotsInput),
       new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput),
       new ActionRowBuilder<TextInputBuilder>().addComponents(bodyInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(tankSlotsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(attackerSlotsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(healerSlotsInput),
     );
 }
 
 export function buildBosyuBpsrEditModal(state: BosyuBpsrState, messageId: string) {
-  const slotsInput = new TextInputBuilder()
-    .setCustomId(BPSR_MODAL_SLOTS_ID)
-    .setLabel(BPSR_MODAL_SLOTS_LABEL)
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true)
-    .setValue(String(state.remaining));
-
   const titleInput = new TextInputBuilder()
     .setCustomId(BPSR_MODAL_TITLE_ID)
     .setLabel("タイトル")
@@ -250,13 +246,36 @@ export function buildBosyuBpsrEditModal(state: BosyuBpsrState, messageId: string
     .setRequired(true)
     .setValue(state.body);
 
+  const tankSlotsInput = new TextInputBuilder()
+    .setCustomId(BPSR_MODAL_TANK_SLOTS_ID)
+    .setLabel("🛡️タンク人数")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(String(state.tankSlots));
+
+  const attackerSlotsInput = new TextInputBuilder()
+    .setCustomId(BPSR_MODAL_ATTACKER_SLOTS_ID)
+    .setLabel("⚔️アタッカー人数")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(String(state.attackerSlots));
+
+  const healerSlotsInput = new TextInputBuilder()
+    .setCustomId(BPSR_MODAL_HEALER_SLOTS_ID)
+    .setLabel("💚ヒーラー人数")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(String(state.healerSlots));
+
   return new ModalBuilder()
     .setCustomId(`${BPSR_EDIT_MODAL_ID_PREFIX}${state.ownerId}:${messageId}`)
     .setTitle("BPSR募集編集")
     .addComponents(
-      new ActionRowBuilder<TextInputBuilder>().addComponents(slotsInput),
       new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput),
       new ActionRowBuilder<TextInputBuilder>().addComponents(bodyInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(tankSlotsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(attackerSlotsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(healerSlotsInput),
     );
 }
 
@@ -293,71 +312,64 @@ export function parseBosyuBpsrModalTarget(customId: string):
   return null;
 }
 
-export function decideBosyuBpsrCommandInput(input: {
-  slots: number | null;
-  title: string | null;
-  body: string | null;
-}):
-  | { type: "modal" }
-  | { type: "error"; message: string }
-  | { type: "create"; slots: number; title: string; body: string } {
-  const hasSlots = input.slots !== null;
-  const hasTitle = input.title !== null;
-  const hasBody = input.body !== null;
-  const hasAny = hasSlots || hasTitle || hasBody;
-  const hasAll = hasSlots && hasTitle && hasBody;
-
-  if (!hasAny) {
-    return { type: "modal" };
-  }
-
-  if (!hasAll) {
-    return { type: "error", message: BPSR_PARTIAL_ERROR };
-  }
-
-  const validated = validateBosyuBpsrInput({
-    slots: input.slots as number,
-    title: input.title as string,
-    body: input.body as string,
-  });
-
-  if (!validated.ok) {
-    return { type: "error", message: validated.message };
-  }
-
-  return {
-    type: "create",
-    slots: validated.slots,
-    title: validated.title,
-    body: validated.body,
-  };
+export function decideBosyuBpsrCommandInput(): { type: "modal" } {
+  // ロール別人数制限のため、常にモーダルで入力
+  return { type: "modal" };
 }
 
 export function parseBosyuBpsrModalSubmission(
   interaction: ModalSubmitInteraction,
 ):
-  | { ok: true; slots: number; title: string; body: string }
+  | { ok: true; title: string; body: string; tankSlots: number; attackerSlots: number; healerSlots: number }
   | { ok: false; message: string } {
-  const slotsRaw = interaction.fields
-    .getTextInputValue(BPSR_MODAL_SLOTS_ID)
-    .trim();
   const titleRaw = interaction.fields
     .getTextInputValue(BPSR_MODAL_TITLE_ID)
     .trim();
   const bodyRaw = interaction.fields
     .getTextInputValue(BPSR_MODAL_BODY_ID)
     .trim();
+  const tankSlotsRaw = interaction.fields
+    .getTextInputValue(BPSR_MODAL_TANK_SLOTS_ID)
+    .trim();
+  const attackerSlotsRaw = interaction.fields
+    .getTextInputValue(BPSR_MODAL_ATTACKER_SLOTS_ID)
+    .trim();
+  const healerSlotsRaw = interaction.fields
+    .getTextInputValue(BPSR_MODAL_HEALER_SLOTS_ID)
+    .trim();
 
-  const slotsValue = parseSlotsInput(slotsRaw);
-  if (slotsValue === null || slotsValue < 1) {
-    return { ok: false, message: "slots は1以上の整数で入力してください。" };
+  if (titleRaw.length === 0) {
+    return { ok: false, message: "タイトルは空欄にできません。" };
+  }
+  if (bodyRaw.length === 0) {
+    return { ok: false, message: "内容は空欄にできません。" };
   }
 
-  return validateBosyuBpsrInput({
-    slots: slotsValue,
+  const tankSlots = parseSlotsInput(tankSlotsRaw);
+  if (tankSlots === null || tankSlots < 0) {
+    return { ok: false, message: "タンク人数は0以上の整数で入力してください。" };
+  }
+  const attackerSlots = parseSlotsInput(attackerSlotsRaw);
+  if (attackerSlots === null || attackerSlots < 0) {
+    return { ok: false, message: "アタッカー人数は0以上の整数で入力してください。" };
+  }
+  const healerSlots = parseSlotsInput(healerSlotsRaw);
+  if (healerSlots === null || healerSlots < 0) {
+    return { ok: false, message: "ヒーラー人数は0以上の整数で入力してください。" };
+  }
+
+  if (tankSlots + attackerSlots + healerSlots === 0) {
+    return { ok: false, message: "合計人数は1名以上にしてください。" };
+  }
+
+  return {
+    ok: true,
     title: titleRaw,
     body: bodyRaw,
-  });
+    tankSlots,
+    attackerSlots,
+    healerSlots,
+  };
 }
 
 export function parseBosyuBpsrEmbed(embed: Embed | null, ownerId: string) {
@@ -378,28 +390,37 @@ export function parseBosyuBpsrEmbed(embed: Embed | null, ownerId: string) {
   const body = lines.slice(1).join("\n").trim();
   const title = embed.title ?? "";
 
+  // フィールド名から枠数をパース（例: "🛡️タンク（1/2）"）
   const tankField = embed.fields.find(
-    (field) => field.name === BPSR_TANK_FIELD,
+    (field) => field.name.startsWith("🛡️タンク"),
   );
   const attackerField = embed.fields.find(
-    (field) => field.name === BPSR_ATTACKER_FIELD,
+    (field) => field.name.startsWith("⚔️アタッカー"),
   );
   const healerField = embed.fields.find(
-    (field) => field.name === BPSR_HEALER_FIELD,
-  );
-  const remainingField = embed.fields.find(
-    (field) => field.name === BPSR_REMAINING_FIELD,
+    (field) => field.name.startsWith("💚ヒーラー"),
   );
 
-  if (!tankField || !attackerField || !healerField || !remainingField) return null;
+  if (!tankField || !attackerField || !healerField) return null;
+
+  // フィールド名から枠数を抽出（例: "🛡️タンク（1/2）" → 2）
+  const tankSlotsMatch = tankField.name.match(/（\d+\/(\d+)）/);
+  const attackerSlotsMatch = attackerField.name.match(/（\d+\/(\d+)）/);
+  const healerSlotsMatch = healerField.name.match(/（\d+\/(\d+)）/);
+
+  if (!tankSlotsMatch || !attackerSlotsMatch || !healerSlotsMatch) return null;
+
+  const tankSlots = Number(tankSlotsMatch[1]);
+  const attackerSlots = Number(attackerSlotsMatch[1]);
+  const healerSlots = Number(healerSlotsMatch[1]);
+
+  if (!Number.isFinite(tankSlots) || !Number.isFinite(attackerSlots) || !Number.isFinite(healerSlots)) {
+    return null;
+  }
 
   const tanks = parseMembers(tankField.value);
   const attackers = parseMembers(attackerField.value);
   const healers = parseMembers(healerField.value);
-  const remainingMatch = remainingField.value.match(/あと(\d+)名/);
-  if (!remainingMatch) return null;
-  const remaining = Number(remainingMatch[1]);
-  if (!Number.isFinite(remaining)) return null;
 
   return {
     ownerId,
@@ -408,7 +429,9 @@ export function parseBosyuBpsrEmbed(embed: Embed | null, ownerId: string) {
     tanks,
     attackers,
     healers,
-    remaining,
+    tankSlots,
+    attackerSlots,
+    healerSlots,
     status,
   } satisfies BosyuBpsrState;
 }
@@ -427,43 +450,7 @@ function normalizeDigits(value: string) {
   );
 }
 
-function validateBosyuBpsrInput(input: {
-  slots: number;
-  title: string;
-  body: string;
-}):
-  | { ok: true; slots: number; title: string; body: string }
-  | { ok: false; message: string } {
-  if (!Number.isInteger(input.slots) || input.slots < 1) {
-    return {
-      ok: false,
-      message: "slots は1以上の整数で入力してください。",
-    };
-  }
 
-  const trimmedTitle = input.title.trim();
-  if (trimmedTitle.length === 0) {
-    return {
-      ok: false,
-      message: "title は空欄にできません。",
-    };
-  }
-
-  const trimmedBody = input.body.trim();
-  if (trimmedBody.length === 0) {
-    return {
-      ok: false,
-      message: "body は空欄にできません。",
-    };
-  }
-
-  return {
-    ok: true,
-    slots: input.slots,
-    title: trimmedTitle,
-    body: trimmedBody,
-  };
-}
 
 export function applyBosyuBpsrAction(input: BosyuBpsrActionInput): BosyuBpsrState | null {
   const { state, action, actorId } = input;
@@ -483,14 +470,22 @@ export function applyBosyuBpsrAction(input: BosyuBpsrActionInput): BosyuBpsrStat
     // 同じロールで参加済みの場合は no-op
     if (currentRole === targetRole) return null;
 
-    // 未参加の場合：remaining をチェック
-    if (currentRole === null && state.remaining <= 0) return null;
+    // ターゲットロールの空き枠チェック
+    const targetRemaining =
+      targetRole === "tank" ? state.tankSlots - state.tanks.length :
+        targetRole === "attacker" ? state.attackerSlots - state.attackers.length :
+          state.healerSlots - state.healers.length;
+
+    // 未参加の場合：ターゲットロールの空き枠をチェック
+    if (currentRole === null && targetRemaining <= 0) return null;
+
+    // ロール変更の場合：ターゲットロールの空き枠をチェック
+    if (currentRole !== null && targetRemaining <= 0) return null;
 
     // 新しい状態を作成
     let newTanks = [...state.tanks];
     let newAttackers = [...state.attackers];
     let newHealers = [...state.healers];
-    let newRemaining = state.remaining;
 
     // 既存のロールから削除
     if (currentRole === "tank") {
@@ -499,9 +494,6 @@ export function applyBosyuBpsrAction(input: BosyuBpsrActionInput): BosyuBpsrStat
       newAttackers = newAttackers.filter((m) => !memberIncludesId(m, actorId));
     } else if (currentRole === "healer") {
       newHealers = newHealers.filter((m) => !memberIncludesId(m, actorId));
-    } else {
-      // 新規参加の場合は remaining を減らす
-      newRemaining -= 1;
     }
 
     // 新しいロールに追加
@@ -518,7 +510,6 @@ export function applyBosyuBpsrAction(input: BosyuBpsrActionInput): BosyuBpsrStat
       tanks: newTanks,
       attackers: newAttackers,
       healers: newHealers,
-      remaining: newRemaining,
     };
   }
 
@@ -544,25 +535,13 @@ export function applyBosyuBpsrAction(input: BosyuBpsrActionInput): BosyuBpsrStat
       tanks: newTanks,
       attackers: newAttackers,
       healers: newHealers,
-      remaining: state.remaining + 1,
     };
   }
 
-  if (action === "plus") {
-    if (!isOwner || isClosed) return null;
-    return {
-      ...state,
-      remaining: state.remaining + 1,
-    };
-  }
-
-  if (action === "minus") {
-    if (!isOwner || isClosed) return null;
-    if (state.remaining <= 0) return null;
-    return {
-      ...state,
-      remaining: state.remaining - 1,
-    };
+  // plus/minusはロール別人数では不要（編集モーダルで変更可能）
+  if (action === "plus" || action === "minus") {
+    // no-op: ロール別人数管理では枠の+/-は編集で行う
+    return null;
   }
 
   if (action === "close") {
