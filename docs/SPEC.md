@@ -1,32 +1,28 @@
-# SPEC — Discord便利Bot v0.1 (Sapphire)
+# SPEC — Discord便利Bot v1.2.0 (Sapphire)
 
 ## 0. このドキュメントの扱い（最優先）
-- この `SPEC.md` が v0.1 の **唯一の正**（Single Source of Truth）。
-- ここに書かれていない機能・挙動を **推測で追加しない**。
-- 実装は Codex / Antigravity に投げる。**このチャットではコードを書かない**。
-- バージョンごとの「入れる/入れない」の境界は `docs/SCOPE.md` を優先する（矛盾したらSCOPE側を正として修正する）。
-- 未スケジュールの案・検討事項は `docs/PLANS.md` に置き、SPECには確定事項のみを書く。
-- v0.1.1 のような「v0.1系パッチ」は、`docs/SCOPE.md` に境界を追加し、本書にも確定仕様として追記する。
+- この `SPEC.md` が **実装済み仕様のまとめ**（現状の正）。  
+ 既存実装と矛盾していないことが最優先。
+- 仕様変更を入れる場合は、関連ドキュメント（`docs/COMMAND.md` / `docs/HELP.md` / `docs/DETAILS/*.md` など）も合わせて更新する。
+- 未確定の案や検討事項は `docs/PLANS.md` に置く。
 
 ## 1. 目的
 - 「普段使いで便利」な機能を少しずつ増やす。
-- v0.1 では、既存（旧Java）実装の挙動を基準に仕様を固め、Sapphireへ移植可能な形で定義する。
+- 現行実装（Sapphire）を基準に、挙動と運用を明文化する。
 
 ## 2. スコープ
-> v0.1/v0.2/Later の範囲宣言は `docs/SCOPE.md` が正。
+> 仕様の範囲は現行実装が正。必要に応じて `docs/SCOPE.md` を更新する。
 
-### 2.1 v0.1 に含める（確定）
+### 2.1 現行に含める（実装済み）
 - フレームワーク：**Sapphire Framework（discord.js v14ベース）**
 - 永続化：**SQLite（ローカルファイル）**
 - ヘルプ：`/help`（ephemeral + 一覧→詳細遷移 + ページ送り）
-- 既存コマンドの移植ベース（詳細は順次追加）
-  - 現時点で仕様確定済み：**募集（bosyu）**
+- 権限：**public / restricted / owner-only** の3タイプ
+- 主要コマンド（一覧は `src/command-config.ts` が正）
 
-### 2.2 v0.1 に含めない（確定）
+### 2.2 現行に含めない（未実装）
 - 音楽機能
 - MessageContent intent 前提の機能
-- /poll /config /clean（将来追加）
-- コマンド可用性（このサーバーで使える/使えない、このユーザー/ロールだけ等）
 
 ## 3. 技術要件（非交渉）
 - 言語：TypeScript（`strict: true`）
@@ -35,7 +31,7 @@
 - Secrets：
   - Token/DBパス等は `.env` で管理する
   - コード・ログ・会話ログに直書きしない
-- Web操作（検証/調査など）：Antigravity（Chrome MCP）に任せる
+- Web操作（検証/調査など）：必要時のみ行う
 
 ### 3.1 プロジェクト構成（src/）
 
@@ -44,7 +40,6 @@ src/
 ├── index.ts                 # エントリポイント（SapphireClient初期化）
 ├── db.ts                    # SQLite初期化
 ├── config.ts                # 環境変数設定
-├── permissions.ts           # 権限チェック
 ├── scheduler.ts             # リマインダースケジューラ
 ├── commands/                # Sapphire Commandクラス（自動登録）
 │   ├── HelpCommand.ts
@@ -53,16 +48,29 @@ src/
 │   ├── RemindCommand.ts
 │   ├── RemindListCommand.ts
 │   ├── AllowCommand.ts
-│   └── ConfigCommand.ts
+│   ├── ConfigCommand.ts
+│   ├── VerifyCommand.ts
+│   ├── BpsrRoleCommand.ts
+│   ├── MentionReactorsCommand.ts
+│   └── DiceCommand.ts
 ├── interaction-handlers/    # Sapphire InteractionHandler（ボタン・モーダル）
 │   ├── HelpButtonHandler.ts
 │   ├── BosyuButtonHandler.ts
 │   ├── BosyuModalHandler.ts
 │   └── ...
+├── listeners/               # エラー/拒否などのリスナー
+│   ├── ChatInputCommandDenied.ts
+│   ├── ChatInputCommandError.ts
+│   └── InteractionHandlerError.ts
+├── preconditions/           # Sapphire Precondition
+│   ├── GuildAllowed.ts
+│   └── RestrictedAllowed.ts
 └── lib/                     # 共有ユーティリティ
     ├── help-utils.ts
     ├── bosyu-utils.ts
     ├── bosyu-bpsr-utils.ts
+    ├── permission-utils.ts
+    ├── error-notify.ts
     └── remind-utils.ts
 ```
 
@@ -123,7 +131,7 @@ src/
 
 ---
 
-## 7. 募集（bosyu）— v0.1 仕様確定（v0.1.1でモーダル追記）
+## 7. 募集（bosyu）
 ### 7.1 目的
 - 参加者募集用のメッセージ（Embed）を投稿し、ボタン操作で
   - 参加者リスト
@@ -143,7 +151,7 @@ src/
   - `title`: string（v0.1.1以降は任意入力。後述のモード判定に従う）
   - `body`: string（v0.1.1以降は任意入力。後述のモード判定に従う）
 
-#### 7.3.1 モード判定（v0.1.1）
+#### 7.3.1 モード判定
 - `slots/title/body` が **全て未指定**：
   - モーダル入力を表示する（7.3.2）。
 - `slots/title/body` が **全て指定**：
@@ -151,19 +159,19 @@ src/
 - `slots/title/body` が **一部のみ指定**：
   - エラーを ephemeral で返し、no-op（募集は作成しない）。
 
-##### エラー文（v0.1.1）
+##### エラー文
 - エラー文は簡潔に、以下の要点を含む：
   - 「3項目すべて入力するか、引数なしでモーダル入力してください」
 - 例（固定文言にしてよい）：
   - `slots/title/body は3項目すべて入力するか、引数なしで /bosyu を実行してモーダル入力してください。`
 
-#### 7.3.2 モーダル入力（v0.1.1）
+#### 7.3.2 モーダル入力
 - `/bosyu`（引数なし）実行時、モーダルを表示する。
 - モーダルの入力項目は `slots/title/body` に対応する3項目とする。
 - 送信後の挙動は「`slots/title/body` が全て指定された即時作成」と同一（7.4以降）。
 - モーダルを閉じた場合は no-op（何も投稿しない）。
 
-##### モーダル項目（v0.1.1）
+##### モーダル項目
 - フィールド（3つ）
   - `slots`（短文入力）
   - `title`（短文入力）
@@ -174,7 +182,7 @@ src/
   - body：`内容`
 - プレースホルダーは任意（未指定でもよい）。
 
-##### 入力検証（v0.1.1）
+##### 入力検証
 - `slots`：
   - 全角数字が入力された場合は**半角に自動変換**する（例：`５` → `5`）
   - 整数として解釈できること（数値以外はエラー）
@@ -224,14 +232,7 @@ src/
 
 ---
 
-## 8. 成果物（AIに求めるもの）
-- 「動く最小構成」で起動できること
-- README（起動手順 / コマンド登録 / 環境変数 / DB準備）
-- v0.1 で確定した機能の実装が仕様通りであること
-- `docs/` 配下のドキュメント（SPEC/HELP/DETAILS）と挙動が矛盾しないこと
-- `docs/SCOPE.md` の v0.1 範囲を超えた機能を勝手に実装しないこと
-
-## 9. 完了条件（Acceptance Criteria）
+## 8. 完了条件（Acceptance Criteria）
 - intents は `Guilds` のみで動作する
 - Secrets は `.env` 管理で、コード/ログに直書きされない
 - `/help` が仕様通りに動く
@@ -244,13 +245,13 @@ src/
 - `/bosyu` が投稿でき、ボタン操作で仕様通りに状態が変わる
   - join/cancel/plus/minus/close の権限と no-op を含む
   - close により join/cancel/plus/minus が disabled になる
-- v0.1.1：`/bosyu` が引数なしでモーダル入力を開ける
+- `/bosyu` が引数なしでモーダル入力を開ける
   - 送信後は従来と同じ募集が作成される
   - 引数が一部のみ指定された場合は ephemeral エラーで no-op
   - slots が数値でない/1未満の場合は ephemeral エラーで no-op
   - モーダルを閉じた場合は no-op（何も投稿しない）
 - README に最低限の手順が揃っている（起動/登録/env/DB）
-- v0.1.2：`/bosyu` に「編集」ボタンがある
+- `/bosyu` に「編集」ボタンがある
   - 作成者のみが編集ボタンを操作可能
   - 編集モーダルに現在のタイトル/本文/人数がプリフィルされる
   - 送信でEmbedが更新される（参加者リスト・状態は維持）
