@@ -35,7 +35,10 @@ export class InteractionHandlerErrorListener extends Listener<typeof Events.Inte
         try {
             if (this.isRepliable(interaction)) {
                 if (interaction.deferred || interaction.replied) {
-                    await interaction.editReply({ content: message });
+                    await interaction.followUp({
+                        content: message,
+                        flags: MessageFlags.Ephemeral,
+                    });
                 } else {
                     await interaction.reply({
                         content: message,

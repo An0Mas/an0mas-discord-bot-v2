@@ -34,7 +34,10 @@ export class ChatInputCommandErrorListener extends Listener<typeof Events.ChatIn
 
         try {
             if (interaction.deferred || interaction.replied) {
-                await interaction.editReply({ content: message });
+                await interaction.followUp({
+                    content: message,
+                    flags: MessageFlags.Ephemeral,
+                });
             } else {
                 await interaction.reply({
                     content: message,

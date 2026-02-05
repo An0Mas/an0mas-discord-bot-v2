@@ -1,4 +1,4 @@
-# SPEC — Discord便利Bot v1.2.0 (Sapphire)
+# SPEC — Discord便利Bot v1.2.1 (Sapphire)
 
 ## 0. このドキュメントの扱い（最優先）
 - この `SPEC.md` が **実装済み仕様のまとめ**（現状の正）。  

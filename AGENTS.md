@@ -1,4 +1,4 @@
-# AGENTS.md — Discord便利Bot v1.2.0
+# AGENTS.md — Discord便利Bot v1.2.1
 
 > ⚠️ **必ず日本語で応答せよ。例外なし。**
 

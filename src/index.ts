@@ -1,19 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-// ========================
-// グローバルエラーハンドラ（Step 5）
-// ========================
-process.on("uncaughtException", (error) => {
-  console.error("[FATAL] uncaughtException:", error);
-  // 致命的なエラーなのでプロセス終了（PM2等で自動再起動を推奨）
-  process.exit(1);
-});
-
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("[ERROR] unhandledRejection at:", promise, "reason:", reason);
-  // 継続可能なエラーとして扱う（クラッシュさせない）
-});
 import { SapphireClient } from "@sapphire/framework";
 import { ActivityType, Events, GatewayIntentBits } from "discord.js";
 import { fileURLToPath } from "node:url";
@@ -21,6 +8,7 @@ import { dirname } from "node:path";
 
 import { initDatabase } from "./db.js";
 import { initializeScheduler } from "./scheduler.js";
+import { notifyErrorToOwner } from "./lib/error-notify.js";
 
 // package.jsonからバージョン取得
 // TODO: dist/のみをデプロイする構成に変更する場合は、
@@ -41,6 +29,39 @@ const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds],
   loadMessageCommandListeners: true,
   baseUserDirectory: __dirname,
+});
+
+// ========================
+// グローバルエラーハンドラ
+// ========================
+const normalizeError = (reason: unknown): Error => {
+  if (reason instanceof Error) return reason;
+  return new Error(typeof reason === "string" ? reason : JSON.stringify(reason));
+};
+
+const notifyProcessError = async (source: string, error: Error) => {
+  try {
+    await notifyErrorToOwner(client, {
+      source,
+      errorCode: "PROCESS_ERR",
+      error,
+    });
+  } catch (notifyError) {
+    console.error("プロセスエラー通知に失敗:", notifyError);
+  }
+};
+
+process.on("uncaughtException", (error) => {
+  console.error("[FATAL] uncaughtException:", error);
+  void notifyProcessError("uncaughtException", error);
+  // 致命的なエラーなのでプロセス終了（PM2等で自動再起動を推奨）
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[ERROR] unhandledRejection at:", promise, "reason:", reason);
+  void notifyProcessError("unhandledRejection", normalizeError(reason));
+  // 継続可能なエラーとして扱う（クラッシュさせない）
 });
 
 client.once(Events.ClientReady, (readyClient) => {
