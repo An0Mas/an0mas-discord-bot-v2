@@ -1,4 +1,4 @@
-# 権限システム — Discord便利Bot v0.2
+# 権限システム — Discord便利Bot
 
 ## 概要
 
@@ -17,7 +17,7 @@
 | 種別 | 条件 | 例 |
 |------|------|-----|
 | **Everyone** | 許可済みGuildなら誰でも実行可 | `/help`, `/bosyu`, `/remind` |
-| **Restricted** | Guild許可 + 許可ユーザー/ロール | （将来用） |
+| **Restricted** | Guild許可 + 許可user/role | `/verify`, `/bpsr-role`, `/mention-reactors` |
 | **OwnerOnly** | Botオーナー本人のみ | `/allow`, `/config` |
 
 ---
@@ -40,8 +40,10 @@ OWNER_ID=123456789012345678
 
 ```sql
 CREATE TABLE guild_config (
-  guild_id   TEXT PRIMARY KEY,
-  enabled    INTEGER NOT NULL DEFAULT 0
+  guild_id    TEXT PRIMARY KEY,
+  enabled     INTEGER NOT NULL DEFAULT 0,
+  admin_role  TEXT,
+  config_json TEXT
 );
 ```
 
@@ -164,7 +166,7 @@ Preconditionを使うことで：
 
 ## 主要関数
 
-### permissions.ts
+### permission-utils.ts
 
 ```typescript
 // Guild許可チェック
@@ -200,23 +202,25 @@ hasAnyPermissionSettings(guildId, command): boolean
 
 ## Restrictedコマンドの実装方法
 
-コマンドをRestrictedにするには、ハンドラ内で以下のチェックを追加：
+コマンドをRestrictedにするには、Preconditionで制御します：
 
 ```typescript
-import { hasAnyPermissionSettings, isUserAllowedForCommand } from "../db.js";
-
-// 許可設定が存在する場合のみチェック
-if (hasAnyPermissionSettings(guildId, "bosyu")) {
-  const userRoles = member.roles.cache.map(r => r.id);
-  if (!isUserAllowedForCommand(guildId, "bosyu", userId, userRoles)) {
-    await interaction.reply({
-      content: "🚫 このコマンドを実行する権限がありません。",
-      ephemeral: true,
-    });
-    return;
-  }
+// コマンドのpreconditionsに RestrictedAllowed を追加
+export class VerifyCommand extends Command {
+    public constructor(context: Command.LoaderContext, options: Command.Options) {
+        super(context, {
+            ...options,
+            name: "verify",
+            description: "認証ボタンを作成",
+            preconditions: ["GuildAllowed", "RestrictedAllowed"], // ← これを追加
+        });
+    }
 }
 ```
+
+`RestrictedAllowed` Preconditionは `src/lib/permission-utils.ts` の
+`hasAnyPermissionSettings` と `isUserAllowedForCommand` を使用し、
+許可設定がある場合のみ権限チェックを行います。
 
 ---
 

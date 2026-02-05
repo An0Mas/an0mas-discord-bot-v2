@@ -74,6 +74,12 @@ await interaction.reply({
 
 > `ephemeral: true` は非推奨。必ず `flags: MessageFlags.Ephemeral` を使用。
 
+### エラー処理ポリシー
+
+- 例外は**握りつぶさずに投げる**（グローバルリスナーがユーザー通知＋オーナーDMを行う）
+- どうしても `try/catch` で握る場合は `notifyErrorToOwner` を明示的に呼ぶ
+- 返信済みの場合は `followUp({ flags: MessageFlags.Ephemeral })` を使う（`editReply` ではエフェメラル不可）
+
 ---
 
 ## ドキュメント構成
@@ -100,6 +106,25 @@ await interaction.reply({
 | `PLANS.md` | 今後の開発計画 |
 | `DETAILS/*.md` | 各コマンドの詳細仕様 |
 
+### バージョン更新対象ファイル
+
+リリース時に以下のファイルのバージョンを更新すること：
+
+| ファイル | 更新箇所 |
+|----------|----------|
+| `package.json` | `"version": "x.x.x"` |
+| `README.md` | タイトル行 `(vx.x.x)` |
+| `AGENTS.md` | タイトル行 `vx.x.x` |
+| `docs/SPEC.md` | タイトル行 `vx.x.x` |
+
+#### バージョニングルール（セマンティックバージョニング）
+
+| 変更タイプ | バージョン | 例 |
+|------------|-----------|-----|
+| 破壊的変更・大規模リファクタ | **メジャー** (x.0.0) | API互換性が崩れる変更 |
+| 新機能追加 | **マイナー** (x.y.0) | 新コマンド、新ボタン機能 |
+| バグ修正・内部改善 | **パッチ** (x.y.z) | エラー処理改善、ドキュメント整備 |
+
 ---
 
 ## ソースコード構成
@@ -115,12 +140,18 @@ src/
 ├── interaction-handlers/ # ボタン・モーダルハンドラ
 ├── lib/                  # ユーティリティ関数
 │   ├── permission-utils.ts  # 権限チェック
+│   ├── error-notify.ts      # エラー通知
 │   ├── bosyu-utils.ts       # 募集機能
 │   ├── bosyu-bpsr-utils.ts  # BPSR募集機能
 │   ├── remind-utils.ts      # リマインダー機能
 │   ├── verify-utils.ts      # 認証機能
 │   ├── help-utils.ts        # ヘルプ機能
-│   └── mention-reactors-utils.ts # リアクションメンション
+│   ├── mention-reactors-utils.ts # リアクションメンション
+│   └── bpsr-role-utils.ts   # BPSRロール付与
+├── listeners/            # イベントリスナー
+│   ├── ChatInputCommandDenied.ts
+│   ├── ChatInputCommandError.ts
+│   └── InteractionHandlerError.ts
 └── preconditions/        # Sapphire Precondition
     ├── GuildAllowed.ts   # Guild許可チェック
     └── RestrictedAllowed.ts # Restricted権限チェック
@@ -133,8 +164,8 @@ src/
 ```bash
 pnpm install    # 依存インストール
 pnpm dev        # 開発サーバー起動
-pnpm tsc --noEmit  # TypeScriptビルドチェック
-pnpm start      # 本番起動
+pnpm typecheck  # TypeScript型チェック
+pnpm verify     # ビルド検証（typecheckのエイリアス）
 ```
 
 ---
@@ -143,13 +174,15 @@ pnpm start      # 本番起動
 
 ### 新コマンドを追加する場合
 
-1. 仕様が複雑な場合のみ `docs/DETAILS/<command>.md` を作成（仕様）
-2. `src/commands/<Command>Command.ts` を作成
-3. `preconditions: ["GuildAllowed"]` を追加
-4. 必要に応じてボタン/モーダルハンドラを作成
-5. `docs/HELP.md` にヘルプ情報を追加
-6. `src/command-config.ts` にメタデータを追加
-7. `docs/COMMAND.md` を更新
+詳細は `add-command` スキルを参照（`.agent/skills/add-command/SKILL.md`）。
+
+**クイックチェックリスト：**
+1. 本当にスラッシュコマンドが必要か確認（ボタンで完結できないか）
+2. `src/commands/{Name}Command.ts` を作成
+3. `src/command-config.ts` にCOMMANDS追加
+4. `docs/HELP.md` にヘルプ情報追加（`### 概要` 必須）
+5. `docs/COMMAND.md` を更新
+6. 必要に応じて `docs/DETAILS/*.md` を作成
 
 ### ファイル命名規則
 
@@ -187,5 +220,4 @@ pnpm start      # 本番起動
 
 - コマンド応答は3秒以内に行う必要がある（Discordの制限）
 - 長い処理は `deferReply()` を使用
-- Unknown interaction (10062) エラーはPreconditionで防止済み
 - **コード内コメントは日本語で記述**

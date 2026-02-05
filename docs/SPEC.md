@@ -71,7 +71,10 @@ src/
     ├── bosyu-bpsr-utils.ts
     ├── permission-utils.ts
     ├── error-notify.ts
-    └── remind-utils.ts
+    ├── remind-utils.ts
+    ├── verify-utils.ts
+    ├── mention-reactors-utils.ts
+    └── bpsr-role-utils.ts
 ```
 
 
@@ -83,8 +86,8 @@ src/
 ### 4.2 DBスキーマ
 - 詳細は [`docs/DB-SCHEMA.md`](./DB-SCHEMA.md) を参照。
 
-### 4.3 DBの役割（v0.1）
-- v0.1 は「まず動く」を優先し、SQLiteで状態を保持する。
+### 4.3 DBの役割
+- 「まず動く」を優先し、SQLiteで状態を保持する。
 - ただし、機能によっては **メッセージ内容（Embed等）から状態復元**できる設計を優先してよい（bosyu等）。
 
 ## 5. 権限 / 安全
@@ -95,7 +98,7 @@ src/
 
 ---
 
-## 6. ヘルプ（/help）— v0.1（最短UI + ページ送り）
+## 6. ヘルプ（/help）
 ### 6.1 目的
 - ユーザーがBot内でコマンドの使い方を確認できるようにする。
 
@@ -110,7 +113,7 @@ src/
 - コマンド一覧を `1.` `2.` … の **ナンバリング**で表示する。
 - 各行は「コマンド名 + 軽い説明（summary）」を表示する。
   - summary は `docs/HELP.md` の各コマンドの「概要（1行）」を使用する。
-- 1ページあたり最大 `N=10` コマンド（v0.1固定）。
+- 1ページあたり最大 `N=10` コマンド。
 - フッター等に `Page X / Y` を表示する。
 
 ### 6.5 詳細表示（一覧 → 詳細）
@@ -147,9 +150,9 @@ src/
 
 ### 7.3 入力（コマンドI/F）
 - `/bosyu`
-  - `slots`: number（v0.1.1以降は任意入力。後述のモード判定に従う）
-  - `title`: string（v0.1.1以降は任意入力。後述のモード判定に従う）
-  - `body`: string（v0.1.1以降は任意入力。後述のモード判定に従う）
+  - `slots`: number（任意入力。後述のモード判定に従う）
+  - `title`: string（任意入力。後述のモード判定に従う）
+  - `body`: string（任意入力。後述のモード判定に従う）
 
 #### 7.3.1 モード判定
 - `slots/title/body` が **全て未指定**：
@@ -209,7 +212,7 @@ src/
 - 参加取消（cancel）：誰でも
 - 締切/再開（close）：**作成者のみ**
 - ＋/－（plus/minus）：**作成者のみ**
-- 編集（edit）：**作成者のみ**（v0.1.2）
+- 編集（edit）：**作成者のみ**
 
 ### 7.6 挙動（要点）
 - join：
@@ -224,7 +227,7 @@ src/
 - close（作成者のみ）：
   - OPEN→CLOSED：join/cancel/plus/minus を disabled、close は「再開」表示で有効
   - CLOSED→OPEN：join/cancel/plus/minus を enabled、close は「締切」表示で有効
-- edit（作成者のみ、v0.1.2）：
+- edit（作成者のみ）：
   - 編集モーダルを表示（タイトル/本文/人数に現在値をプリフィル）
   - 送信でEmbedを更新（参加者リスト・状態は維持）
   - 締切中（CLOSED）でも編集可能

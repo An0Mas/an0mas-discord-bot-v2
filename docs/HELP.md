@@ -1,4 +1,4 @@
-# HELP — Discord便利Bot v0.2
+# HELP — Discord便利Bot
 
 > このファイルは /help が表示する文言の正本。
 > 一覧の表示順はこのファイルの掲載順を優先する。

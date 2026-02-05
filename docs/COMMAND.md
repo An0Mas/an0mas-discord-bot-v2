@@ -1,4 +1,4 @@
-# COMMAND — Discord便利Bot v0.2
+# COMMAND — Discord便利Bot
 
 > これはユーザー向けの早見表。仕様の優先順位は SPEC.md が最上位。
 
