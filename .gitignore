@@ -48,6 +48,7 @@ data/
 # ===== Agent notes (local work logs) =====
 docs/agent-notes/*
 !docs/agent-notes/_TEMPLATE.md
+docs/research/
 codex_prompt.md
 codex_prompt2.md
 
