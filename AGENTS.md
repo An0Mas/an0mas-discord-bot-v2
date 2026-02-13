@@ -38,6 +38,8 @@ AIエージェント向けドキュメントガイド。作業開始時に必ず
   ファイル: `.agent/skills/kaizen/SKILL.md`
 - `prompt-engineering` — プロンプト/スキル/コマンド設計の指針  
   ファイル: `.agent/skills/prompt-engineering/SKILL.md`
+- `codex-audit` — 改善監査を標準フォーマットで実施し、`docs/research/codex-audit/YYYY-MM-DD/` に記録する手順  
+  ファイル: `.agent/skills/codex-audit/SKILL.md`
 
 ---
 
