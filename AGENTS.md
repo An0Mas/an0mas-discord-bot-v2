@@ -164,11 +164,17 @@ src/
 ## 開発コマンド
 
 ```bash
-pnpm install    # 依存インストール
-pnpm dev        # 開発サーバー起動
-pnpm typecheck  # TypeScript型チェック
-pnpm verify     # ビルド検証（typecheckのエイリアス）
+pnpm install      # 依存インストール
+pnpm dev          # 開発サーバー起動
+pnpm typecheck    # TypeScript型チェック
+pnpm lint         # ESLintチェック
+pnpm lint:fix     # ESLint自動修正
+pnpm format       # Prettier整形
+pnpm format:check # Prettier整形チェック（CIなどで使用）
+pnpm verify       # typecheck + lint（コミット前に必ず実行）
 ```
+
+> ⚠️ **コード変更後は必ず `pnpm lint:fix` → `pnpm format` → `pnpm verify` を実行してからコミットすること。**
 
 ---
 
