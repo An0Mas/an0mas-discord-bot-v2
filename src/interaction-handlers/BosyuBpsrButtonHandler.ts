@@ -3,7 +3,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import type { ButtonInteraction } from 'discord.js';
+import { MessageFlags, type ButtonInteraction } from 'discord.js';
 import {
   applyBosyuBpsrAction,
   buildBosyuBpsrEditModal,
@@ -71,7 +71,7 @@ export class BosyuBpsrButtonHandler extends InteractionHandler {
       if (memberCount === 0) {
         await interaction.reply({
           content: '📢 参加者がいないためメンションを送信できません。',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -82,7 +82,7 @@ export class BosyuBpsrButtonHandler extends InteractionHandler {
       await interaction.reply({
         content: `📢 参加者 **${memberCount}人** にメンションを送信します`,
         components,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

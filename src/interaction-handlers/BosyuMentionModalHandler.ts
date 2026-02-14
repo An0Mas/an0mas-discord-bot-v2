@@ -3,7 +3,7 @@
  */
 
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import type { ModalSubmitInteraction, TextChannel } from 'discord.js';
+import { MessageFlags, type ModalSubmitInteraction, type TextChannel } from 'discord.js';
 import {
   buildBosyuMentionMessage,
   parseBosyuEmbed,
@@ -38,7 +38,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
     if (interaction.user.id !== parsed.ownerId) {
       await interaction.reply({
         content: '❌ 権限がありません。',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -48,7 +48,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
     if (!channel) {
       await interaction.reply({
         content: '❌ チャンネルが見つかりません。',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -60,7 +60,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
     } catch {
       await interaction.reply({
         content: '❌ 募集メッセージが見つかりません。',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -70,7 +70,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
     if (!state) {
       await interaction.reply({
         content: '❌ 募集情報を取得できません。',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -78,7 +78,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
     if (state.members.length === 0) {
       await interaction.reply({
         content: '📢 参加者がいないためメンションを送信できません。',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -88,7 +88,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
     if (!customMessage) {
       await interaction.reply({
         content: '❌ メッセージを入力してください。',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -101,7 +101,7 @@ export class BosyuMentionModalHandler extends InteractionHandler {
 
     await interaction.reply({
       content: '✅ メンションを送信しました。',
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
