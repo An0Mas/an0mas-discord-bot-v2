@@ -71,10 +71,12 @@ ${LOCALAPPDATA}/
 
 # ===== AI Tools =====
 .claude/
-# .agent は原則ローカル、ただし codex-audit スキルはGit管理する
+# .agent は原則ローカル、ただし一部スキルはGit管理する
 .agent/*
 !.agent/skills/
 .agent/skills/*
+!.agent/skills/add-command/
+!.agent/skills/add-command/**
 !.agent/skills/codex-audit/
 !.agent/skills/codex-audit/**
 .codex/
