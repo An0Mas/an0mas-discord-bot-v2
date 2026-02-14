@@ -8,6 +8,7 @@ DB: SQLite (`data/dev.sqlite3`)
 ## テーブル一覧
 
 ### 1. meta
+
 メタ情報用テーブル（キー・バリュー形式）
 
 ```sql
@@ -17,14 +18,15 @@ CREATE TABLE IF NOT EXISTS meta (
 );
 ```
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| key | TEXT | キー（PK） |
-| value | TEXT | 値 |
+| カラム | 型   | 説明       |
+| ------ | ---- | ---------- |
+| key    | TEXT | キー（PK） |
+| value  | TEXT | 値         |
 
 ---
 
 ### 2. reminders
+
 リマインダー情報テーブル
 
 ```sql
@@ -37,15 +39,16 @@ CREATE TABLE IF NOT EXISTS reminders (
 );
 ```
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| id | INTEGER | リマインダーID（PK、自動採番） |
-| user_id | TEXT | DiscordユーザーID |
-| notify_at | INTEGER | 通知時刻（Unix timestamp） |
-| content | TEXT | 通知内容 |
-| created_at | INTEGER | 登録時刻（Unix timestamp） |
+| カラム     | 型      | 説明                           |
+| ---------- | ------- | ------------------------------ |
+| id         | INTEGER | リマインダーID（PK、自動採番） |
+| user_id    | TEXT    | DiscordユーザーID              |
+| notify_at  | INTEGER | 通知時刻（Unix timestamp）     |
+| content    | TEXT    | 通知内容                       |
+| created_at | INTEGER | 登録時刻（Unix timestamp）     |
 
 #### インデックス
+
 ```sql
 CREATE INDEX IF NOT EXISTS idx_reminders_user_id ON reminders(user_id);
 CREATE INDEX IF NOT EXISTS idx_reminders_notify_at ON reminders(notify_at);
@@ -54,6 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_reminders_notify_at ON reminders(notify_at);
 ---
 
 ### 3. guild_config
+
 Guild（サーバー）設定テーブル — 権限管理用
 
 ```sql
@@ -65,16 +69,17 @@ CREATE TABLE IF NOT EXISTS guild_config (
 );
 ```
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| guild_id | TEXT | DiscordギルドID（PK） |
-| enabled | INTEGER | Bot利用許可（1=許可, 0=未許可） |
-| admin_role | TEXT | 設定変更権限を委譲するロールID（将来用） |
-| config_json | TEXT | その他設定をJSONで保持（将来用） |
+| カラム      | 型      | 説明                                     |
+| ----------- | ------- | ---------------------------------------- |
+| guild_id    | TEXT    | DiscordギルドID（PK）                    |
+| enabled     | INTEGER | Bot利用許可（1=許可, 0=未許可）          |
+| admin_role  | TEXT    | 設定変更権限を委譲するロールID（将来用） |
+| config_json | TEXT    | その他設定をJSONで保持（将来用）         |
 
 ---
 
 ### 4. allowed_users
+
 コマンド別許可ユーザーテーブル — Restrictedコマンドの権限管理
 
 ```sql
@@ -86,15 +91,16 @@ CREATE TABLE IF NOT EXISTS allowed_users (
 );
 ```
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| guild_id | TEXT | DiscordギルドID |
-| command | TEXT | コマンド名（例: bosyu） |
-| user_id | TEXT | 許可されたユーザーID |
+| カラム   | 型   | 説明                    |
+| -------- | ---- | ----------------------- |
+| guild_id | TEXT | DiscordギルドID         |
+| command  | TEXT | コマンド名（例: bosyu） |
+| user_id  | TEXT | 許可されたユーザーID    |
 
 ---
 
 ### 5. allowed_roles
+
 コマンド別許可ロールテーブル — Restrictedコマンドの権限管理
 
 ```sql
@@ -106,23 +112,26 @@ CREATE TABLE IF NOT EXISTS allowed_roles (
 );
 ```
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| guild_id | TEXT | DiscordギルドID |
-| command | TEXT | コマンド名（例: bosyu） |
-| role_id | TEXT | 許可されたロールID |
+| カラム   | 型   | 説明                    |
+| -------- | ---- | ----------------------- |
+| guild_id | TEXT | DiscordギルドID         |
+| command  | TEXT | コマンド名（例: bosyu） |
+| role_id  | TEXT | 許可されたロールID      |
 
 ---
 
 ## 使用ライブラリ
+
 - `better-sqlite3`
 
 ## ファイル
+
 - `src/db.ts` - DB初期化＋CRUD関数
 
 ---
 
 ### 6. verify_settings
+
 認証設定テーブル — 合言葉認証システム
 
 ```sql
@@ -139,19 +148,20 @@ CREATE TABLE IF NOT EXISTS verify_settings (
 );
 ```
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| message_id | TEXT | 認証メッセージID（PK） |
-| channel_id | TEXT | チャンネルID |
-| guild_id | TEXT | DiscordギルドID |
-| keyword | TEXT | 正解の合言葉 |
-| role_id | TEXT | 付与するロールID |
-| owner_id | TEXT | 作成者ID |
-| title | TEXT | 埋め込みタイトル（任意） |
-| description | TEXT | 埋め込み説明文（任意） |
-| created_at | INTEGER | 作成時刻（Unix timestamp） |
+| カラム      | 型      | 説明                       |
+| ----------- | ------- | -------------------------- |
+| message_id  | TEXT    | 認証メッセージID（PK）     |
+| channel_id  | TEXT    | チャンネルID               |
+| guild_id    | TEXT    | DiscordギルドID            |
+| keyword     | TEXT    | 正解の合言葉               |
+| role_id     | TEXT    | 付与するロールID           |
+| owner_id    | TEXT    | 作成者ID                   |
+| title       | TEXT    | 埋め込みタイトル（任意）   |
+| description | TEXT    | 埋め込み説明文（任意）     |
+| created_at  | INTEGER | 作成時刻（Unix timestamp） |
 
 #### インデックス
+
 ```sql
 CREATE INDEX IF NOT EXISTS idx_verify_settings_guild ON verify_settings(guild_id);
 ```

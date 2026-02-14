@@ -14,20 +14,22 @@
 
 ## コマンド種別
 
-| 種別 | 条件 | 例 |
-|------|------|-----|
-| **Everyone** | 許可済みGuildなら誰でも実行可 | `/help`, `/bosyu`, `/remind` |
-| **Restricted** | Guild許可 + 許可user/role | `/verify`, `/bpsr-role`, `/mention-reactors` |
-| **OwnerOnly** | Botオーナー本人のみ | `/allow`, `/config` |
+| 種別           | 条件                          | 例                                           |
+| -------------- | ----------------------------- | -------------------------------------------- |
+| **Everyone**   | 許可済みGuildなら誰でも実行可 | `/help`, `/bosyu`, `/remind`                 |
+| **Restricted** | Guild許可 + 許可user/role     | `/verify`, `/bpsr-role`, `/mention-reactors` |
+| **OwnerOnly**  | Botオーナー本人のみ           | `/allow`, `/config`                          |
 
 ---
 
 ## 設定ファイル
 
 ### .env
+
 ```env
 OWNER_ID=123456789012345678
 ```
+
 - Botオーナーを特定するDiscord User ID
 - `/allow`, `/config` の実行権限に使用
 
@@ -36,6 +38,7 @@ OWNER_ID=123456789012345678
 ## データベーステーブル
 
 ### guild_config
+
 サーバー単位の許可設定
 
 ```sql
@@ -48,6 +51,7 @@ CREATE TABLE guild_config (
 ```
 
 ### allowed_users
+
 コマンド別許可ユーザー
 
 ```sql
@@ -60,6 +64,7 @@ CREATE TABLE allowed_users (
 ```
 
 ### allowed_roles
+
 コマンド別許可ロール
 
 ```sql
@@ -75,14 +80,14 @@ CREATE TABLE allowed_roles (
 
 ## 関連モジュール
 
-| ファイル | 役割 |
-|----------|------|
-| `src/config.ts` | OWNER_ID取得、`isBotOwner()` |
-| `src/lib/permission-utils.ts` | 権限チェック関数群 |
-| `src/preconditions/GuildAllowed.ts` | Guild許可Precondition |
-| `src/db.ts` | DB操作（許可リストCRUD） |
-| `src/commands/AllowCommand.ts` | `/allow` コマンド（Sapphire） |
-| `src/commands/ConfigCommand.ts` | `/config` コマンド（Sapphire） |
+| ファイル                            | 役割                           |
+| ----------------------------------- | ------------------------------ |
+| `src/config.ts`                     | OWNER_ID取得、`isBotOwner()`   |
+| `src/lib/permission-utils.ts`       | 権限チェック関数群             |
+| `src/preconditions/GuildAllowed.ts` | Guild許可Precondition          |
+| `src/db.ts`                         | DB操作（許可リストCRUD）       |
+| `src/commands/AllowCommand.ts`      | `/allow` コマンド（Sapphire）  |
+| `src/commands/ConfigCommand.ts`     | `/config` コマンド（Sapphire） |
 
 ---
 
@@ -98,26 +103,26 @@ SapphireフレームワークのPreconditionは、コマンド実行前に条件
 `src/preconditions/GuildAllowed.ts` でGuild許可チェックを実装しています。
 
 ```typescript
-import { Precondition } from "@sapphire/framework";
-import type { ChatInputCommandInteraction } from "discord.js";
-import { checkGuildPermission } from "../lib/permission-utils.js";
+import { Precondition } from '@sapphire/framework';
+import type { ChatInputCommandInteraction } from 'discord.js';
+import { checkGuildPermission } from '../lib/permission-utils.js';
 
 export class GuildAllowedPrecondition extends Precondition {
-    public override async chatInputRun(interaction: ChatInputCommandInteraction) {
-        const guildCheck = checkGuildPermission(interaction);
-        
-        if (!guildCheck.allowed) {
-            return this.error({ message: guildCheck.reason });
-        }
-        
-        return this.ok();
+  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
+    const guildCheck = checkGuildPermission(interaction);
+
+    if (!guildCheck.allowed) {
+      return this.error({ message: guildCheck.reason });
     }
+
+    return this.ok();
+  }
 }
 
-declare module "@sapphire/framework" {
-    interface Preconditions {
-        GuildAllowed: never;
-    }
+declare module '@sapphire/framework' {
+  interface Preconditions {
+    GuildAllowed: never;
+  }
 }
 ```
 
@@ -127,30 +132,30 @@ declare module "@sapphire/framework" {
 
 ```typescript
 export class MyCommand extends Command {
-    public constructor(context: Command.LoaderContext, options: Command.Options) {
-        super(context, {
-            ...options,
-            name: "mycommand",
-            description: "コマンドの説明",
-            preconditions: ["GuildAllowed"],  // ← これを追加
-        });
-    }
+  public constructor(context: Command.LoaderContext, options: Command.Options) {
+    super(context, {
+      ...options,
+      name: 'mycommand',
+      description: 'コマンドの説明',
+      preconditions: ['GuildAllowed'], // ← これを追加
+    });
+  }
 }
 ```
 
 ### 適用対象
 
-| コマンド | Precondition | 備考 |
-|----------|--------------|------|
-| `/help` | GuildAllowed | ✅ |
-| `/bosyu` | GuildAllowed | ✅ |
-| `/bosyu-bpsr` | GuildAllowed | ✅ |
-| `/dice` | GuildAllowed | ✅ |
-| `/remind` | GuildAllowed | ✅ |
-| `/remind-list` | GuildAllowed | ✅ |
-| `/verify` | GuildAllowed | ✅ |
-| `/allow` | なし | オーナー専用（Guild許可前でも使用可能） |
-| `/config` | なし | オーナー専用（Guild許可前でも使用可能） |
+| コマンド       | Precondition | 備考                                    |
+| -------------- | ------------ | --------------------------------------- |
+| `/help`        | GuildAllowed | ✅                                      |
+| `/bosyu`       | GuildAllowed | ✅                                      |
+| `/bosyu-bpsr`  | GuildAllowed | ✅                                      |
+| `/dice`        | GuildAllowed | ✅                                      |
+| `/remind`      | GuildAllowed | ✅                                      |
+| `/remind-list` | GuildAllowed | ✅                                      |
+| `/verify`      | GuildAllowed | ✅                                      |
+| `/allow`       | なし         | オーナー専用（Guild許可前でも使用可能） |
+| `/config`      | なし         | オーナー専用（Guild許可前でも使用可能） |
 
 ### なぜPreconditionを使うのか
 
@@ -158,6 +163,7 @@ export class MyCommand extends Command {
 Sapphireのコマンド処理と競合し、タイムアウトエラー（Unknown interaction: 10062）が発生することがありました。
 
 Preconditionを使うことで：
+
 - ✅ Sapphireのコマンド処理フローに統合される
 - ✅ 競合やタイムアウトが発生しない
 - ✅ エラーメッセージが正しく表示される
@@ -207,14 +213,14 @@ hasAnyPermissionSettings(guildId, command): boolean
 ```typescript
 // コマンドのpreconditionsに RestrictedAllowed を追加
 export class VerifyCommand extends Command {
-    public constructor(context: Command.LoaderContext, options: Command.Options) {
-        super(context, {
-            ...options,
-            name: "verify",
-            description: "認証ボタンを作成",
-            preconditions: ["GuildAllowed", "RestrictedAllowed"], // ← これを追加
-        });
-    }
+  public constructor(context: Command.LoaderContext, options: Command.Options) {
+    super(context, {
+      ...options,
+      name: 'verify',
+      description: '認証ボタンを作成',
+      preconditions: ['GuildAllowed', 'RestrictedAllowed'], // ← これを追加
+    });
+  }
 }
 ```
 
@@ -227,6 +233,7 @@ export class VerifyCommand extends Command {
 ## 管理コマンド
 
 ### /allow
+
 ```
 /allow guild add          — サーバーを許可
 /allow guild remove       — サーバーを不許可
@@ -237,6 +244,7 @@ export class VerifyCommand extends Command {
 ```
 
 ### /config
+
 ```
 /config show              — 基本設定を表示
 /config permissions       — 権限設定一覧

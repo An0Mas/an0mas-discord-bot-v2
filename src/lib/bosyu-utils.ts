@@ -8,10 +8,10 @@ import {
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
-} from "discord.js";
+} from 'discord.js';
 
-type BosyuStatus = "OPEN" | "CLOSED";
-type BosyuAction = "join" | "cancel" | "plus" | "minus" | "close" | "edit" | "mention";
+type BosyuStatus = 'OPEN' | 'CLOSED';
+type BosyuAction = 'join' | 'cancel' | 'plus' | 'minus' | 'close' | 'edit' | 'mention';
 
 export type BosyuState = {
   ownerId: string;
@@ -33,32 +33,31 @@ type ParsedBosyuCustomId = {
   ownerId: string;
 };
 
-const BOSYU_MEMBER_FIELD = "参加メンバーリスト";
-const BOSYU_REMAINING_FIELD = "募集人数";
-const BOSYU_OPEN_TEXT = "【募集中】";
-const BOSYU_CLOSED_TEXT = "【募集停止】";
+const BOSYU_MEMBER_FIELD = '参加メンバーリスト';
+const BOSYU_REMAINING_FIELD = '募集人数';
+const BOSYU_OPEN_TEXT = '【募集中】';
+const BOSYU_CLOSED_TEXT = '【募集停止】';
 const BOSYU_OPEN_IMAGE =
-  "https://1.bp.blogspot.com/-0LJSR56tXL8/VVGVS2PQRsI/AAAAAAAAtkA/9EI2ZHrT5w8/s800/text_sankasya_bosyu.png";
+  'https://1.bp.blogspot.com/-0LJSR56tXL8/VVGVS2PQRsI/AAAAAAAAtkA/9EI2ZHrT5w8/s800/text_sankasya_bosyu.png';
 const BOSYU_CLOSED_IMAGE =
-  "https://1.bp.blogspot.com/-fDI1k-dkGO8/X5OcjEhqRUI/AAAAAAABcAc/DSrwuOQW6xMPgE1XZ8zvqhV0akkIctmTgCNcBGAsYHQ/s819/text_oshirase_eigyousyuuryou.png";
+  'https://1.bp.blogspot.com/-fDI1k-dkGO8/X5OcjEhqRUI/AAAAAAABcAc/DSrwuOQW6xMPgE1XZ8zvqhV0akkIctmTgCNcBGAsYHQ/s819/text_oshirase_eigyousyuuryou.png';
 
-const BOSYU_MODAL_ID_PREFIX = "bosyu-modal:";
-const BOSYU_EDIT_MODAL_ID_PREFIX = "bosyu-edit:";
-const BOSYU_MODAL_SLOTS_ID = "bosyu-modal-slots";
-const BOSYU_MODAL_TITLE_ID = "bosyu-modal-title";
-const BOSYU_MODAL_BODY_ID = "bosyu-modal-body";
+const BOSYU_MODAL_ID_PREFIX = 'bosyu-modal:';
+const BOSYU_EDIT_MODAL_ID_PREFIX = 'bosyu-edit:';
+const BOSYU_MODAL_SLOTS_ID = 'bosyu-modal-slots';
+const BOSYU_MODAL_TITLE_ID = 'bosyu-modal-title';
+const BOSYU_MODAL_BODY_ID = 'bosyu-modal-body';
 const BOSYU_PARTIAL_ERROR =
-  "slots/title/body は3項目すべて入力するか、引数なしで /bosyu を実行してモーダル入力してください。";
+  'slots/title/body は3項目すべて入力するか、引数なしで /bosyu を実行してモーダル入力してください。';
 
 export function createBosyuState(input: BosyuState) {
   return input;
 }
 
 export function buildBosyuEmbed(state: BosyuState) {
-  const statusText = state.status === "OPEN" ? BOSYU_OPEN_TEXT : BOSYU_CLOSED_TEXT;
+  const statusText = state.status === 'OPEN' ? BOSYU_OPEN_TEXT : BOSYU_CLOSED_TEXT;
   const description = `${statusText}\n${state.body}`;
-  const membersFieldValue =
-    state.members.length > 0 ? state.members.join("\n") : "`参加者無し`";
+  const membersFieldValue = state.members.length > 0 ? state.members.join('\n') : '`参加者無し`';
 
   return new EmbedBuilder()
     .setTitle(state.title)
@@ -75,22 +74,22 @@ export function buildBosyuEmbed(state: BosyuState) {
         inline: true,
       },
     )
-    .setImage(state.status === "OPEN" ? BOSYU_OPEN_IMAGE : BOSYU_CLOSED_IMAGE);
+    .setImage(state.status === 'OPEN' ? BOSYU_OPEN_IMAGE : BOSYU_CLOSED_IMAGE);
 }
 
 export function buildBosyuComponents(state: BosyuState) {
-  const closed = state.status === "CLOSED";
-  const closeLabel = closed ? "再開" : "締切";
+  const closed = state.status === 'CLOSED';
+  const closeLabel = closed ? '再開' : '締切';
 
   const joinButton = new ButtonBuilder()
     .setCustomId(`bosyu:join:${state.ownerId}`)
-    .setLabel("参加")
+    .setLabel('参加')
     .setStyle(ButtonStyle.Primary)
     .setDisabled(closed);
 
   const cancelButton = new ButtonBuilder()
     .setCustomId(`bosyu:cancel:${state.ownerId}`)
-    .setLabel("参加取消")
+    .setLabel('参加取消')
     .setStyle(ButtonStyle.Danger)
     .setDisabled(closed);
 
@@ -101,31 +100,28 @@ export function buildBosyuComponents(state: BosyuState) {
 
   const plusButton = new ButtonBuilder()
     .setCustomId(`bosyu:plus:${state.ownerId}`)
-    .setLabel("＋")
+    .setLabel('＋')
     .setStyle(ButtonStyle.Secondary)
     .setDisabled(closed);
 
   const minusButton = new ButtonBuilder()
     .setCustomId(`bosyu:minus:${state.ownerId}`)
-    .setLabel("－")
+    .setLabel('－')
     .setStyle(ButtonStyle.Secondary)
     .setDisabled(closed);
 
   const editButton = new ButtonBuilder()
     .setCustomId(`bosyu:edit:${state.ownerId}`)
-    .setLabel("編集")
+    .setLabel('編集')
     .setStyle(ButtonStyle.Secondary);
 
   const mentionButton = new ButtonBuilder()
     .setCustomId(`bosyu:mention:${state.ownerId}`)
-    .setLabel("📢メンション")
+    .setLabel('📢メンション')
     .setStyle(ButtonStyle.Secondary);
 
   return [
-    new ActionRowBuilder<ButtonBuilder>().addComponents(
-      joinButton,
-      cancelButton,
-    ),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(joinButton, cancelButton),
     new ActionRowBuilder<ButtonBuilder>().addComponents(
       closeButton,
       plusButton,
@@ -137,17 +133,17 @@ export function buildBosyuComponents(state: BosyuState) {
 }
 
 export function parseBosyuCustomId(customId: string): ParsedBosyuCustomId | null {
-  const parts = customId.split(":");
+  const parts = customId.split(':');
   if (parts.length !== 3) return null;
   const [, action, ownerId] = parts;
   if (
-    action !== "join" &&
-    action !== "cancel" &&
-    action !== "plus" &&
-    action !== "minus" &&
-    action !== "close" &&
-    action !== "edit" &&
-    action !== "mention"
+    action !== 'join' &&
+    action !== 'cancel' &&
+    action !== 'plus' &&
+    action !== 'minus' &&
+    action !== 'close' &&
+    action !== 'edit' &&
+    action !== 'mention'
   ) {
     return null;
   }
@@ -158,25 +154,25 @@ export function parseBosyuCustomId(customId: string): ParsedBosyuCustomId | null
 export function buildBosyuModal(userId: string) {
   const slotsInput = new TextInputBuilder()
     .setCustomId(BOSYU_MODAL_SLOTS_ID)
-    .setLabel("募集人数（あと何名）")
+    .setLabel('募集人数（あと何名）')
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
   const titleInput = new TextInputBuilder()
     .setCustomId(BOSYU_MODAL_TITLE_ID)
-    .setLabel("タイトル")
+    .setLabel('タイトル')
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
   const bodyInput = new TextInputBuilder()
     .setCustomId(BOSYU_MODAL_BODY_ID)
-    .setLabel("内容")
+    .setLabel('内容')
     .setStyle(TextInputStyle.Paragraph)
     .setRequired(true);
 
   return new ModalBuilder()
     .setCustomId(`${BOSYU_MODAL_ID_PREFIX}${userId}`)
-    .setTitle("募集作成")
+    .setTitle('募集作成')
     .addComponents(
       new ActionRowBuilder<TextInputBuilder>().addComponents(slotsInput),
       new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput),
@@ -187,28 +183,28 @@ export function buildBosyuModal(userId: string) {
 export function buildBosyuEditModal(state: BosyuState, messageId: string) {
   const slotsInput = new TextInputBuilder()
     .setCustomId(BOSYU_MODAL_SLOTS_ID)
-    .setLabel("募集人数（あと何名）")
+    .setLabel('募集人数（あと何名）')
     .setStyle(TextInputStyle.Short)
     .setRequired(true)
     .setValue(String(state.remaining));
 
   const titleInput = new TextInputBuilder()
     .setCustomId(BOSYU_MODAL_TITLE_ID)
-    .setLabel("タイトル")
+    .setLabel('タイトル')
     .setStyle(TextInputStyle.Short)
     .setRequired(true)
     .setValue(state.title);
 
   const bodyInput = new TextInputBuilder()
     .setCustomId(BOSYU_MODAL_BODY_ID)
-    .setLabel("内容")
+    .setLabel('内容')
     .setStyle(TextInputStyle.Paragraph)
     .setRequired(true)
     .setValue(state.body);
 
   return new ModalBuilder()
     .setCustomId(`${BOSYU_EDIT_MODAL_ID_PREFIX}${state.ownerId}:${messageId}`)
-    .setTitle("募集編集")
+    .setTitle('募集編集')
     .addComponents(
       new ActionRowBuilder<TextInputBuilder>().addComponents(slotsInput),
       new ActionRowBuilder<TextInputBuilder>().addComponents(titleInput),
@@ -225,25 +221,27 @@ export function parseBosyuModalOwnerId(customId: string) {
 export function parseBosyuEditModalTarget(customId: string) {
   if (!customId.startsWith(BOSYU_EDIT_MODAL_ID_PREFIX)) return null;
   const payload = customId.slice(BOSYU_EDIT_MODAL_ID_PREFIX.length);
-  const parts = payload.split(":");
+  const parts = payload.split(':');
   if (parts.length !== 2) return null;
   const [ownerId, messageId] = parts;
   if (!ownerId || !messageId) return null;
   return { ownerId, messageId };
 }
 
-export function parseBosyuModalTarget(customId: string):
-  | { type: "create"; ownerId: string }
-  | { type: "edit"; ownerId: string; messageId: string }
+export function parseBosyuModalTarget(
+  customId: string,
+):
+  | { type: 'create'; ownerId: string }
+  | { type: 'edit'; ownerId: string; messageId: string }
   | null {
   const createOwnerId = parseBosyuModalOwnerId(customId);
   if (createOwnerId) {
-    return { type: "create", ownerId: createOwnerId };
+    return { type: 'create', ownerId: createOwnerId };
   }
 
   const editTarget = parseBosyuEditModalTarget(customId);
   if (editTarget) {
-    return { type: "edit", ...editTarget };
+    return { type: 'edit', ...editTarget };
   }
 
   return null;
@@ -254,9 +252,9 @@ export function decideBosyuCommandInput(input: {
   title: string | null;
   body: string | null;
 }):
-  | { type: "modal" }
-  | { type: "error"; message: string }
-  | { type: "create"; slots: number; title: string; body: string } {
+  | { type: 'modal' }
+  | { type: 'error'; message: string }
+  | { type: 'create'; slots: number; title: string; body: string } {
   const hasSlots = input.slots !== null;
   const hasTitle = input.title !== null;
   const hasBody = input.body !== null;
@@ -264,11 +262,11 @@ export function decideBosyuCommandInput(input: {
   const hasAll = hasSlots && hasTitle && hasBody;
 
   if (!hasAny) {
-    return { type: "modal" };
+    return { type: 'modal' };
   }
 
   if (!hasAll) {
-    return { type: "error", message: BOSYU_PARTIAL_ERROR };
+    return { type: 'error', message: BOSYU_PARTIAL_ERROR };
   }
 
   const validated = validateBosyuInput({
@@ -278,11 +276,11 @@ export function decideBosyuCommandInput(input: {
   });
 
   if (!validated.ok) {
-    return { type: "error", message: validated.message };
+    return { type: 'error', message: validated.message };
   }
 
   return {
-    type: "create",
+    type: 'create',
     slots: validated.slots,
     title: validated.title,
     body: validated.body,
@@ -291,22 +289,14 @@ export function decideBosyuCommandInput(input: {
 
 export function parseBosyuModalSubmission(
   interaction: ModalSubmitInteraction,
-):
-  | { ok: true; slots: number; title: string; body: string }
-  | { ok: false; message: string } {
-  const slotsRaw = interaction.fields
-    .getTextInputValue(BOSYU_MODAL_SLOTS_ID)
-    .trim();
-  const titleRaw = interaction.fields
-    .getTextInputValue(BOSYU_MODAL_TITLE_ID)
-    .trim();
-  const bodyRaw = interaction.fields
-    .getTextInputValue(BOSYU_MODAL_BODY_ID)
-    .trim();
+): { ok: true; slots: number; title: string; body: string } | { ok: false; message: string } {
+  const slotsRaw = interaction.fields.getTextInputValue(BOSYU_MODAL_SLOTS_ID).trim();
+  const titleRaw = interaction.fields.getTextInputValue(BOSYU_MODAL_TITLE_ID).trim();
+  const bodyRaw = interaction.fields.getTextInputValue(BOSYU_MODAL_BODY_ID).trim();
 
   const slotsValue = parseSlotsInput(slotsRaw);
   if (slotsValue === null || slotsValue < 1) {
-    return { ok: false, message: "slots は1以上の整数で入力してください。" };
+    return { ok: false, message: 'slots は1以上の整数で入力してください。' };
   }
 
   return validateBosyuInput({
@@ -319,27 +309,19 @@ export function parseBosyuModalSubmission(
 export function parseBosyuEmbed(embed: Embed | null, ownerId: string) {
   if (!embed) return null;
 
-  const description = embed.description ?? "";
+  const description = embed.description ?? '';
   const lines = description.split(/\r?\n/);
   const statusLine = lines[0]?.trim();
   const status =
-    statusLine === BOSYU_OPEN_TEXT
-      ? "OPEN"
-      : statusLine === BOSYU_CLOSED_TEXT
-        ? "CLOSED"
-        : null;
+    statusLine === BOSYU_OPEN_TEXT ? 'OPEN' : statusLine === BOSYU_CLOSED_TEXT ? 'CLOSED' : null;
 
   if (!status) return null;
 
-  const body = lines.slice(1).join("\n").trim();
-  const title = embed.title ?? "";
+  const body = lines.slice(1).join('\n').trim();
+  const title = embed.title ?? '';
 
-  const membersField = embed.fields.find(
-    (field) => field.name === BOSYU_MEMBER_FIELD,
-  );
-  const remainingField = embed.fields.find(
-    (field) => field.name === BOSYU_REMAINING_FIELD,
-  );
+  const membersField = embed.fields.find((field) => field.name === BOSYU_MEMBER_FIELD);
+  const remainingField = embed.fields.find((field) => field.name === BOSYU_REMAINING_FIELD);
 
   if (!membersField || !remainingField) return null;
 
@@ -377,13 +359,11 @@ function validateBosyuInput(input: {
   slots: number;
   title: string;
   body: string;
-}):
-  | { ok: true; slots: number; title: string; body: string }
-  | { ok: false; message: string } {
+}): { ok: true; slots: number; title: string; body: string } | { ok: false; message: string } {
   if (!Number.isInteger(input.slots) || input.slots < 1) {
     return {
       ok: false,
-      message: "slots は1以上の整数で入力してください。",
+      message: 'slots は1以上の整数で入力してください。',
     };
   }
 
@@ -391,7 +371,7 @@ function validateBosyuInput(input: {
   if (trimmedTitle.length === 0) {
     return {
       ok: false,
-      message: "title は空欄にできません。",
+      message: 'title は空欄にできません。',
     };
   }
 
@@ -399,7 +379,7 @@ function validateBosyuInput(input: {
   if (trimmedBody.length === 0) {
     return {
       ok: false,
-      message: "body は空欄にできません。",
+      message: 'body は空欄にできません。',
     };
   }
 
@@ -414,9 +394,9 @@ function validateBosyuInput(input: {
 export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
   const { state, action, actorId } = input;
   const isOwner = actorId === state.ownerId;
-  const isClosed = state.status === "CLOSED";
+  const isClosed = state.status === 'CLOSED';
 
-  if (action === "join") {
+  if (action === 'join') {
     if (isClosed) return null;
     if (isMember(state.members, actorId)) return null;
     if (state.remaining <= 0) return null;
@@ -427,7 +407,7 @@ export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
     };
   }
 
-  if (action === "cancel") {
+  if (action === 'cancel') {
     if (isClosed) return null;
     if (!isMember(state.members, actorId)) return null;
     const members = state.members.filter((member) => !memberIncludesId(member, actorId));
@@ -438,7 +418,7 @@ export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
     };
   }
 
-  if (action === "plus") {
+  if (action === 'plus') {
     if (!isOwner || isClosed) return null;
     return {
       ...state,
@@ -446,7 +426,7 @@ export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
     };
   }
 
-  if (action === "minus") {
+  if (action === 'minus') {
     if (!isOwner || isClosed) return null;
     if (state.remaining <= 0) return null;
     return {
@@ -455,11 +435,11 @@ export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
     };
   }
 
-  if (action === "close") {
+  if (action === 'close') {
     if (!isOwner) return null;
     return {
       ...state,
-      status: state.status === "OPEN" ? "CLOSED" : "OPEN",
+      status: state.status === 'OPEN' ? 'CLOSED' : 'OPEN',
     };
   }
 
@@ -467,7 +447,7 @@ export function applyBosyuAction(input: BosyuActionInput): BosyuState | null {
 }
 
 function parseMembers(value: string) {
-  if (value.includes("参加者無し")) return [];
+  if (value.includes('参加者無し')) return [];
   return value
     .split(/\r?\n/)
     .map((member) => member.trim())
@@ -484,37 +464,30 @@ function memberIncludesId(member: string, userId: string) {
 
 // ===== メンション機能 =====
 
-const BOSYU_MENTION_MODAL_ID_PREFIX = "bosyu-mention-modal:";
-const BOSYU_MENTION_MESSAGE_ID = "bosyu-mention-message";
+const BOSYU_MENTION_MODAL_ID_PREFIX = 'bosyu-mention-modal:';
+const BOSYU_MENTION_MESSAGE_ID = 'bosyu-mention-message';
 
 /**
  * メンション確認用エフェメラルのコンポーネントを構築
  */
-export function buildBosyuMentionConfirmComponents(
-  ownerId: string,
-  messageId: string,
-) {
+export function buildBosyuMentionConfirmComponents(ownerId: string, messageId: string) {
   const sendButton = new ButtonBuilder()
     .setCustomId(`bosyu-mention:send:${ownerId}:${messageId}`)
-    .setLabel("✅ 送信")
+    .setLabel('✅ 送信')
     .setStyle(ButtonStyle.Success);
 
   const modalButton = new ButtonBuilder()
     .setCustomId(`bosyu-mention:modal:${ownerId}:${messageId}`)
-    .setLabel("📝 メッセージ付き")
+    .setLabel('📝 メッセージ付き')
     .setStyle(ButtonStyle.Primary);
 
   const cancelButton = new ButtonBuilder()
     .setCustomId(`bosyu-mention:cancel:${ownerId}:${messageId}`)
-    .setLabel("❌ キャンセル")
+    .setLabel('❌ キャンセル')
     .setStyle(ButtonStyle.Secondary);
 
   return [
-    new ActionRowBuilder<ButtonBuilder>().addComponents(
-      sendButton,
-      modalButton,
-      cancelButton,
-    ),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(sendButton, modalButton, cancelButton),
   ];
 }
 
@@ -522,15 +495,15 @@ export function buildBosyuMentionConfirmComponents(
  * メンション確認用customIdをパース
  */
 export function parseBosyuMentionConfirmCustomId(customId: string) {
-  if (!customId.startsWith("bosyu-mention:")) return null;
-  const parts = customId.split(":");
+  if (!customId.startsWith('bosyu-mention:')) return null;
+  const parts = customId.split(':');
   if (parts.length !== 4) return null;
   const [, action, ownerId, messageId] = parts;
-  if (action !== "send" && action !== "modal" && action !== "cancel") {
+  if (action !== 'send' && action !== 'modal' && action !== 'cancel') {
     return null;
   }
   if (!ownerId || !messageId) return null;
-  return { action: action as "send" | "modal" | "cancel", ownerId, messageId };
+  return { action: action as 'send' | 'modal' | 'cancel', ownerId, messageId };
 }
 
 /**
@@ -539,18 +512,16 @@ export function parseBosyuMentionConfirmCustomId(customId: string) {
 export function buildBosyuMentionModal(ownerId: string, messageId: string) {
   const messageInput = new TextInputBuilder()
     .setCustomId(BOSYU_MENTION_MESSAGE_ID)
-    .setLabel("メッセージ（参加者へのお知らせ）")
+    .setLabel('メッセージ（参加者へのお知らせ）')
     .setStyle(TextInputStyle.Paragraph)
     .setRequired(true)
     .setMaxLength(500)
-    .setPlaceholder("開始します！");
+    .setPlaceholder('開始します！');
 
   return new ModalBuilder()
     .setCustomId(`${BOSYU_MENTION_MODAL_ID_PREFIX}${ownerId}:${messageId}`)
-    .setTitle("参加者へメンション")
-    .addComponents(
-      new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput),
-    );
+    .setTitle('参加者へメンション')
+    .addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput));
 }
 
 /**
@@ -559,7 +530,7 @@ export function buildBosyuMentionModal(ownerId: string, messageId: string) {
 export function parseBosyuMentionModalTarget(customId: string) {
   if (!customId.startsWith(BOSYU_MENTION_MODAL_ID_PREFIX)) return null;
   const payload = customId.slice(BOSYU_MENTION_MODAL_ID_PREFIX.length);
-  const parts = payload.split(":");
+  const parts = payload.split(':');
   if (parts.length !== 2) return null;
   const [ownerId, messageId] = parts;
   if (!ownerId || !messageId) return null;
@@ -569,9 +540,7 @@ export function parseBosyuMentionModalTarget(customId: string) {
 /**
  * メンションモーダルの送信内容を取得
  */
-export function parseBosyuMentionModalSubmission(
-  interaction: ModalSubmitInteraction,
-): string {
+export function parseBosyuMentionModalSubmission(interaction: ModalSubmitInteraction): string {
   return interaction.fields.getTextInputValue(BOSYU_MENTION_MESSAGE_ID).trim();
 }
 
@@ -580,14 +549,10 @@ export function parseBosyuMentionModalSubmission(
  * TODO: 参加者が多い場合（約80人以上）、Discordの2000文字制限を超える可能性あり。
  *       必要に応じてメッセージ分割または文字数チェックを実装。
  */
-export function buildBosyuMentionMessage(
-  members: string[],
-  customMessage?: string,
-): string {
-  const mentions = members.join(" ");
+export function buildBosyuMentionMessage(members: string[], customMessage?: string): string {
+  const mentions = members.join(' ');
   if (customMessage) {
     return `${mentions}\n${customMessage}`;
   }
   return `${mentions}\n📢 募集主からのお知らせです`;
 }
-

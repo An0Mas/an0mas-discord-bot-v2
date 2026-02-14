@@ -8,7 +8,7 @@
  * dotenv.config()が先に実行されるよう、関数経由で遅延取得
  */
 export function getOwnerId(): string {
-    return process.env.OWNER_ID || '';
+  return process.env.OWNER_ID || '';
 }
 
 /**
@@ -17,10 +17,10 @@ export function getOwnerId(): string {
  * @returns Botオーナーであれば true
  */
 export function isBotOwner(userId: string): boolean {
-    const ownerId = getOwnerId();
-    if (!ownerId) {
-        // OWNER_IDが未設定の場合は誰もオーナーとして認識しない
-        return false;
-    }
-    return userId === ownerId;
+  const ownerId = getOwnerId();
+  if (!ownerId) {
+    // OWNER_IDが未設定の場合は誰もオーナーとして認識しない
+    return false;
+  }
+  return userId === ownerId;
 }
