@@ -48,7 +48,10 @@ data/
 # ===== Agent notes (local work logs) =====
 docs/agent-notes/*
 !docs/agent-notes/_TEMPLATE.md
-docs/research/
+# research は原則ローカル、ただし codex-audit はGit管理する
+docs/research/*
+!docs/research/codex-audit/
+!docs/research/codex-audit/**
 codex_prompt.md
 codex_prompt2.md
 
@@ -68,7 +71,12 @@ ${LOCALAPPDATA}/
 
 # ===== AI Tools =====
 .claude/
-.agent/
+# .agent は原則ローカル、ただし codex-audit スキルはGit管理する
+.agent/*
+!.agent/skills/
+.agent/skills/*
+!.agent/skills/codex-audit/
+!.agent/skills/codex-audit/**
 .codex/
 .mcp.json
 CLAUDE.md
