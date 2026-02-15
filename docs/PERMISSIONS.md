@@ -250,3 +250,16 @@ export class VerifyCommand extends Command {
 /config permissions       — 権限設定一覧
 /config permissions command:<name> — 特定コマンドの詳細
 ```
+
+---
+
+## 監査起点の運用メモ（2026-02-14）
+
+現在の実装運用で確認している制約と改善予定:
+
+- `/allow user add` / `/allow role add`:
+  - 現状: DB例外を一律で「既存設定あり」と扱う実装箇所があり、重複制約違反とDB障害が同じ扱いになる可能性がある。
+  - 改善予定: `SQLITE_CONSTRAINT` のみ重複扱いとし、その他は例外送出して障害として扱う。
+- Precondition拒否通知:
+  - 現状: 想定内の拒否（権限不足など）でも通知ノイズが増える可能性がある。
+  - 改善予定: 想定内拒否と異常系を通知レベルで分離する。

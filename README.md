@@ -138,6 +138,16 @@ src/
 - `./data/dev.sqlite3` を利用（起動時に自動生成）
 - WALモード + busy_timeout=5000ms
 
+## 品質ゲート / CI（現状）
+
+- ローカル品質ゲート（推奨）:
+  - `pnpm lint:fix`
+  - `pnpm format`
+  - `pnpm verify`
+- `pnpm verify` は `typecheck + lint` を実行します。
+- GitHub Actions によるCIワークフロー（`verify` / `format:check`）は未整備です。
+- 監査タスクとして、最小CI（`pnpm verify` + `pnpm format:check`）の導入を計画しています。
+
 ## 技術スタック
 
 - **フレームワーク**: Sapphire Framework
