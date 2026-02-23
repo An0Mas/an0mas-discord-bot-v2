@@ -36,14 +36,14 @@ description: マルチエージェントの役割分担を決めるスキル。�
 
 ## AO作業フォルダ規約（このプロジェクト）
 
-- 前提: プロジェクト側の作業範囲制約を優先する。外部作業フォルダを使うのはユーザー合意時のみ。
-- 基本ルート: `C:\AI_Work\.ai-work\codex-work\ao-workspace`
+- 前提: プロジェクト側の作業範囲制約を優先する。外部作業フォルダ利用は、ユーザー合意があり、かつプロジェクトルールで許可される場合のみ。
+- 基本ルート: `C:\AI_Work\an0mas-discord-bot-v2\.agent\ao-workspace`
 - 共通知識: `common/`
 - 実行記録: `runs/<YYYYMMDD-task>/`
 - 補助スクリプト: `scripts/`
 - 仕様メモ: `notes/`
 - run作成コマンド:
-  - `& "C:\AI_Work\.ai-work\codex-work\ao-workspace\scripts\new-run.ps1" -Name <YYYYMMDD-task>`
+  - `& "C:\AI_Work\an0mas-discord-bot-v2\.agent\ao-workspace\scripts\new-run.ps1" -Name <YYYYMMDD-task>`
 
 ### 成果物更新ルール（必須）
 
