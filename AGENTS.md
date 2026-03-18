@@ -185,10 +185,6 @@ await interaction.reply({
   ファイル: `.agent/skills/prompt-engineering/SKILL.md`
 - `codex-audit` — 改善監査を標準フォーマットで実施し、`docs/research/codex-audit/YYYY-MM-DD/` に記録する手順  
   ファイル: `.agent/skills/codex-audit/SKILL.md`
-- `agent-orchestrator` — マルチエージェントの分担決め（意図解釈 + 提案先行 + 最小質問）。`AO` / `ao` でも呼び出し可  
-  ファイル: `.agent/skills/agent-orchestrator/SKILL.md`
-  運用メモ: AO運用時も提案先行を必須とし、明示GO（`実行して` / `進めて` / `やって` / `適用して` / `任せる`）までは実装・検証を開始しない
-
 ---
 
 ## 参照資料（必要時のみ確認）
