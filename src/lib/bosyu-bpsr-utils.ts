@@ -321,9 +321,7 @@ export function decideBosyuBpsrCommandInput(): { type: 'modal' } {
   return { type: 'modal' };
 }
 
-export function parseBosyuBpsrModalSubmission(
-  interaction: ModalSubmitInteraction,
-):
+export function parseBosyuBpsrModalSubmission(interaction: ModalSubmitInteraction):
   | {
       ok: true;
       title: string;

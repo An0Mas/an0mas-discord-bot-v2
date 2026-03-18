@@ -4,12 +4,12 @@
 
 ## ステータス凡例
 
-| アイコン | 意味 |
-|:---:|---|
-| ⬜ | 未着手 |
-| 🔄 | 進行中 |
-| ✅ | 完了 |
-| ⏸️ | 保留 |
+| アイコン | 意味   |
+| :------: | ------ |
+|    ⬜    | 未着手 |
+|    🔄    | 進行中 |
+|    ✅    | 完了   |
+|    ⏸️    | 保留   |
 
 ## 運用ルール
 
@@ -29,21 +29,21 @@
 
 ## 優先タスク一覧
 
-| # | タイトル | 優先度 | 工数 | ステータス | 監査参照（plan-10/risks） | 主参照（MD） | 実装参照（src等） | 整合性（一致/MD未記載/不一致） | 実施者（AI/自分） | 着手日 | 完了日 | 証跡（commit/PR） | メモ |
-|:-:|---------|:---:|:---:|:--------:|---------------------------|--------------|-------------------|:-----------------------------:|:----------------:|:-----:|:-----:|-------------------|------|
-| 1 |  | High |  | ⬜ | [plan-10 #1](./{{DATE}}_plan-10.md#1) / [risks High-1](./{{DATE}}_risks.md#risk-high-1) |  |  |  |  |  |  |  |  |
-| 2 |  | High |  | ⬜ | [plan-10 #2](./{{DATE}}_plan-10.md#2) / [risks High-2](./{{DATE}}_risks.md#risk-high-2) |  |  |  |  |  |  |  |  |
-| 3 |  | High |  | ⬜ | [plan-10 #3](./{{DATE}}_plan-10.md#3) / [risks High-3](./{{DATE}}_risks.md#risk-high-3) |  |  |  |  |  |  |  |  |
-| 4 |  | High |  | ⬜ | [plan-10 #4](./{{DATE}}_plan-10.md#4) / [risks High-4](./{{DATE}}_risks.md#risk-high-4) |  |  |  |  |  |  |  |  |
-| 5 |  | High |  | ⬜ | [plan-10 #5](./{{DATE}}_plan-10.md#5) / [risks High-5](./{{DATE}}_risks.md#risk-high-5) |  |  |  |  |  |  |  |  |
-| 6 |  | Med |  | ⬜ | [plan-10 #6](./{{DATE}}_plan-10.md#6) / [risks Med-1](./{{DATE}}_risks.md#risk-med-1) |  |  |  |  |  |  |  |  |
-| 7 |  | Med |  | ⬜ | [plan-10 #7](./{{DATE}}_plan-10.md#7) / [risks Med-2](./{{DATE}}_risks.md#risk-med-2) |  |  |  |  |  |  |  |  |
-| 8 |  | Med |  | ⬜ | [plan-10 #8](./{{DATE}}_plan-10.md#8) / [risks Med-3](./{{DATE}}_risks.md#risk-med-3) |  |  |  |  |  |  |  |  |
-| 9 |  | Med |  | ⬜ | [plan-10 #9](./{{DATE}}_plan-10.md#9) / [risks Med-4](./{{DATE}}_risks.md#risk-med-4) |  |  |  |  |  |  |  |  |
-| 10 |  | Med |  | ⬜ | [plan-10 #10](./{{DATE}}_plan-10.md#10) / [risks Med-5](./{{DATE}}_risks.md#risk-med-5) |  |  |  |  |  |  |  |  |
+|  #  | タイトル | 優先度 | 工数 | ステータス | 監査参照（plan-10/risks）                                                               | 主参照（MD） | 実装参照（src等） | 整合性（一致/MD未記載/不一致） | 実施者（AI/自分） | 着手日 | 完了日 | 証跡（commit/PR） | メモ |
+| :-: | -------- | :----: | :--: | :--------: | --------------------------------------------------------------------------------------- | ------------ | ----------------- | :----------------------------: | :---------------: | :----: | :----: | ----------------- | ---- |
+|  1  |          |  High  |      |     ⬜     | [plan-10 #1](./{{DATE}}_plan-10.md#1) / [risks High-1](./{{DATE}}_risks.md#risk-high-1) |              |                   |                                |                   |        |        |                   |      |
+|  2  |          |  High  |      |     ⬜     | [plan-10 #2](./{{DATE}}_plan-10.md#2) / [risks High-2](./{{DATE}}_risks.md#risk-high-2) |              |                   |                                |                   |        |        |                   |      |
+|  3  |          |  High  |      |     ⬜     | [plan-10 #3](./{{DATE}}_plan-10.md#3) / [risks High-3](./{{DATE}}_risks.md#risk-high-3) |              |                   |                                |                   |        |        |                   |      |
+|  4  |          |  High  |      |     ⬜     | [plan-10 #4](./{{DATE}}_plan-10.md#4) / [risks High-4](./{{DATE}}_risks.md#risk-high-4) |              |                   |                                |                   |        |        |                   |      |
+|  5  |          |  High  |      |     ⬜     | [plan-10 #5](./{{DATE}}_plan-10.md#5) / [risks High-5](./{{DATE}}_risks.md#risk-high-5) |              |                   |                                |                   |        |        |                   |      |
+|  6  |          |  Med   |      |     ⬜     | [plan-10 #6](./{{DATE}}_plan-10.md#6) / [risks Med-1](./{{DATE}}_risks.md#risk-med-1)   |              |                   |                                |                   |        |        |                   |      |
+|  7  |          |  Med   |      |     ⬜     | [plan-10 #7](./{{DATE}}_plan-10.md#7) / [risks Med-2](./{{DATE}}_risks.md#risk-med-2)   |              |                   |                                |                   |        |        |                   |      |
+|  8  |          |  Med   |      |     ⬜     | [plan-10 #8](./{{DATE}}_plan-10.md#8) / [risks Med-3](./{{DATE}}_risks.md#risk-med-3)   |              |                   |                                |                   |        |        |                   |      |
+|  9  |          |  Med   |      |     ⬜     | [plan-10 #9](./{{DATE}}_plan-10.md#9) / [risks Med-4](./{{DATE}}_risks.md#risk-med-4)   |              |                   |                                |                   |        |        |                   |      |
+| 10  |          |  Med   |      |     ⬜     | [plan-10 #10](./{{DATE}}_plan-10.md#10) / [risks Med-5](./{{DATE}}_risks.md#risk-med-5) |              |                   |                                |                   |        |        |                   |      |
 
 ## 対応履歴
 
-| 日付 | # | ステータス | 内容 | 実施者（AI/自分） |
-|------|:-:|:---------:|------|:----------------:|
-| - | - | - | - | - |
+| 日付 |  #  | ステータス | 内容 | 実施者（AI/自分） |
+| ---- | :-: | :--------: | ---- | :---------------: |
+| -    |  -  |     -      | -    |         -         |

@@ -1,6 +1,7 @@
 # 改善調査ログ（{{DATE}}）
 
 ## 目次
+
 - [改善調査サマリ（{{DATE}}）](./{{DATE}}_summary.md)
 - [リスク一覧（{{DATE}}）](./{{DATE}}_risks.md)
 - [改善計画（10件・優先順）（{{DATE}}）](./{{DATE}}_plan-10.md)
@@ -8,6 +9,7 @@
 - [改善対応トラッカー](./improvement-tracker.md)
 
 ## 調査の観点
+
 - Interaction（`deferReply`/`editReply`/`followUp`、二重応答、タイムアウト、編集競合）
 - Rate limit / スパム耐性（429時の扱い、送信頻度、バースト、キュー/間引き）
 - 並行性（同時実行、二重クリック、二重登録、排他が必要な箇所）
@@ -18,6 +20,7 @@
 - DX（Lint/format/CI、README、デバッグ手順、型の厳密さ）
 
 ## 更新ルール
+
 - 追加時は `YYYY-MM-DD_*.md` 形式で新規作成する。
 - 不明点は `未確認` と明記する。
 - `improvement-tracker.md` では、各タスクに `監査参照（plan-10/risks）` を必ず記載する（`plan-10` と `risks` のリンクを両方）。
