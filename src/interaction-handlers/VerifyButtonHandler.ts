@@ -55,6 +55,13 @@ export class VerifyButtonHandler extends InteractionHandler {
   ) {
     const { type, messageId, ownerId } = result;
 
+    if (type === 'verify') {
+      // 認証モーダルは最優先で即表示（interaction期限切れ対策）
+      const modal = buildVerifyModal(messageId);
+      await interaction.showModal(modal);
+      return;
+    }
+
     // 設定を取得
     const setting = getVerifySetting(messageId);
     if (!setting) {
@@ -62,13 +69,6 @@ export class VerifyButtonHandler extends InteractionHandler {
         content: '❌ この認証は無効になっています。',
         flags: MessageFlags.Ephemeral,
       });
-      return;
-    }
-
-    if (type === 'verify') {
-      // 認証モーダルを表示
-      const modal = buildVerifyModal(messageId);
-      await interaction.showModal(modal);
       return;
     }
 
