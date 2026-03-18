@@ -54,9 +54,7 @@ export class InteractionHandlerErrorListener extends Listener<
     }
   }
 
-  private isRepliable(
-    interaction: Interaction,
-  ): interaction is Interaction & {
+  private isRepliable(interaction: Interaction): interaction is Interaction & {
     reply: (...args: unknown[]) => Promise<unknown>;
     editReply: (...args: unknown[]) => Promise<unknown>;
     followUp: (...args: unknown[]) => Promise<unknown>;

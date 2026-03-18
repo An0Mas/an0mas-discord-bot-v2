@@ -13,7 +13,7 @@ description: 新しいSlashコマンドを追加する際のチェックリス�
 ## 0. 事前判断（必須）
 
 - [ ] 新規コマンドが本当に必要か確認した  
-      既存機能の拡張はボタン/メニューを優先する。
+       既存機能の拡張はボタン/メニューを優先する。
 - [ ] 権限タイプ（`public` / `restricted` / `owner-only`）を決めた
 - [ ] 3秒超の可能性がある処理かを判断した（`deferReply` 要否）
 
@@ -99,11 +99,11 @@ export class {Name}Command extends Command {
 
 ### 権限タイプと preconditions
 
-| 権限タイプ | preconditions | 例 |
-|-----------|---------------|----|
-| `public` | `['GuildAllowed']` | `bosyu`, `dice`, `help` |
+| 権限タイプ   | preconditions                           | 例                           |
+| ------------ | --------------------------------------- | ---------------------------- |
+| `public`     | `['GuildAllowed']`                      | `bosyu`, `dice`, `help`      |
 | `restricted` | `['GuildAllowed', 'RestrictedAllowed']` | `verify`, `mention-reactors` |
-| `owner-only` | なし（コマンド内で owner 判定） | `allow`, `config` |
+| `owner-only` | なし（コマンド内で owner 判定）         | `allow`, `config`            |
 
 ---
 
@@ -216,4 +216,3 @@ pnpm dev
 - `ephemeral: true` を使う（必ず `flags: MessageFlags.Ephemeral`）
 - 例外を握りつぶして終了する
 - 仕様変更があるのにドキュメント更新を省略する
-
