@@ -181,16 +181,10 @@ await interaction.reply({
 
 ## Skills
 
-使用可能スキル一覧。必要に応じて追加すること。
+このリポジトリ固有のスキルだけを記載する。汎用の監査、改善、プロンプト設計、Skill監査はグローバルSkillを使い、リポジトリ固有ルールはこのAGENTS.md、docs、Vaultのproject notesを優先する。
 
 - `add-command` — 新しいSlashコマンドを追加する際のチェックリストと手順  
   ファイル: `.agent/skills/add-command/SKILL.md`
-- `kaizen` — 実装/リファクタ/設計/プロセス改善・エラー処理の継続的改善  
-  ファイル: `.agent/skills/kaizen/SKILL.md`
-- `prompt-engineering` — プロンプト/スキル/コマンド設計の指針  
-  ファイル: `.agent/skills/prompt-engineering/SKILL.md`
-- `codex-audit` — 改善監査を標準フォーマットで実施し、`docs/research/codex-audit/YYYY-MM-DD/` に記録する手順  
-  ファイル: `.agent/skills/codex-audit/SKILL.md`
 
 ---
 

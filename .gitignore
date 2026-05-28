@@ -77,8 +77,6 @@ ${LOCALAPPDATA}/
 .agent/skills/*
 !.agent/skills/add-command/
 !.agent/skills/add-command/**
-!.agent/skills/codex-audit/
-!.agent/skills/codex-audit/**
 .codex/
 .mcp.json
 CLAUDE.md
