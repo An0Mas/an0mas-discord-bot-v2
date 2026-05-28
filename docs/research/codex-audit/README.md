@@ -37,4 +37,4 @@
 ## 更新ルール
 
 - 既存日付フォルダを上書きせず、日付単位で新規作成する。
-- 監査観点の追加・変更があれば `_template/` と `.agent/skills/codex-audit/SKILL.md` を同時更新する。
+- 新規監査はグローバル `repo-audit` を使う。過去監査形式を保守する場合は `_template/` とこのREADMEを更新し、ローカル `.agent/skills/codex-audit/` は再作成しない。
