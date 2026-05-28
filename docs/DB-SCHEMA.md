@@ -174,5 +174,4 @@ CREATE INDEX IF NOT EXISTS idx_verify_settings_guild ON verify_settings(guild_id
   - 現状: `schema_version` を使ったマイグレーション管理は未実装。
   - 改善予定: `schema_version` を導入し、起動時に未適用マイグレーションのみ実行する。
 - `allowed_users` / `allowed_roles`:
-  - 現状: 主キー制約で重複は防止されるが、アプリ側の例外分類は改善余地がある。
-  - 改善予定: 重複制約違反とDB障害を分離して扱う。
+  - 対応済み: 主キー制約による重複は `SQLITE_CONSTRAINT` 系として扱い、DB障害などその他の例外とは分離する。
