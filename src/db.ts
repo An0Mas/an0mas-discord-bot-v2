@@ -6,6 +6,19 @@ const require = createRequire(import.meta.url);
 
 let db: import('better-sqlite3').Database | null = null;
 
+type SqliteErrorLike = {
+  code?: unknown;
+};
+
+function isSqliteConstraintError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+
+  const code = (error as SqliteErrorLike).code;
+  return typeof code === 'string' && code.startsWith('SQLITE_CONSTRAINT');
+}
+
 function getDb() {
   if (!db) {
     const dataDir = path.resolve(process.cwd(), 'data');
@@ -266,9 +279,11 @@ export function addAllowedUser(guildId: string, command: string, userId: string)
       )
       .run(guildId, command, userId);
     return true;
-  } catch {
-    // 既に存在する場合はfalse
-    return false;
+  } catch (error) {
+    if (isSqliteConstraintError(error)) {
+      return false;
+    }
+    throw error;
   }
 }
 
@@ -303,9 +318,11 @@ export function addAllowedRole(guildId: string, command: string, roleId: string)
       )
       .run(guildId, command, roleId);
     return true;
-  } catch {
-    // 既に存在する場合はfalse
-    return false;
+  } catch (error) {
+    if (isSqliteConstraintError(error)) {
+      return false;
+    }
+    throw error;
   }
 }
 
